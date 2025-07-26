@@ -1,147 +1,170 @@
 <template>
   <div class="rating-widget">
-    <h4 class="mb-3">用户评分</h4>
-
-    <div v-if="userRating" class="alert alert-info">
-      您已评分: <strong>{{ userRating }}/5</strong>
+    <div class="rating-display mb-2">
+      <div class="stars">
+        <span v-for="star in 5" :key="star" class="star" :class="{ filled: star <= averageRating }">
+          ★
+        </span>
+      </div>
+      <span class="rating-text ms-2">
+        {{ averageRating.toFixed(1) }} ({{ ratingCount }}
+        {{ ratingCount === 1 ? 'review' : 'reviews' }})
+      </span>
     </div>
 
-    <div class="d-flex align-items-center mb-3">
-      <div class="stars me-3">
+    <div v-if="authStore.isAuthenticated && !userRating" class="rating-form">
+      <small class="text-muted d-block mb-2">Rate this resource:</small>
+      <div class="stars interactive">
         <span
           v-for="star in 5"
           :key="star"
           class="star"
-          :class="{ active: star <= currentHover || star <= (userRating || averageRating) }"
-          @mouseover="currentHover = star"
-          @mouseleave="currentHover = 0"
-          @click="rate(star)"
+          :class="{ filled: star <= hoveredRating || star <= selectedRating }"
+          @mouseover="hoveredRating = star"
+          @mouseleave="hoveredRating = 0"
+          @click="submitRating(star)"
         >
           ★
         </span>
       </div>
-
-      <div>
-        <span class="badge bg-primary rounded-pill">
-          {{ averageRating.toFixed(1) }} ({{ totalRatings }} 次评分)
-        </span>
-      </div>
     </div>
 
-    <div class="distribution mt-4">
-      <div v-for="(count, index) in ratingDistribution" :key="index" class="dist-item mb-2">
-        <div class="d-flex align-items-center">
-          <span class="me-2">{{ 5 - index }}星:</span>
-          <div class="progress flex-grow-1">
-            <div
-              class="progress-bar"
-              :class="`bg-${getProgressColor(count)}`"
-              :style="{ width: `${(count / totalRatings) * 100 || 0}%` }"
-            ></div>
-          </div>
-          <span class="ms-2 small">{{ count }}</span>
-        </div>
-      </div>
+    <div v-else-if="userRating" class="user-rating">
+      <small class="text-success">
+        Your rating:
+        <span class="stars">
+          <span
+            v-for="star in 5"
+            :key="star"
+            class="star small"
+            :class="{ filled: star <= userRating.score }"
+          >
+            ★
+          </span>
+        </span>
+      </small>
+    </div>
+
+    <div v-else class="login-prompt">
+      <small class="text-muted">
+        <router-link to="/auth">Login</router-link> to rate this resource
+      </small>
     </div>
   </div>
 </template>
 
-<script setup>
+<script>
 import { ref, computed, onMounted } from 'vue'
-import { useAuthStore } from '@/stores/auth'
-import { saveToStorage, getFromStorage } from '@/utils/storage'
+import { useAuthStore } from '../../stores/auth.js'
+import { useRatingsStore } from '../../stores/ratings.js'
 
-const props = defineProps({
-  resourceId: {
-    type: String,
-    required: true,
+export default {
+  name: 'RatingWidget',
+  props: {
+    resourceId: {
+      type: Number,
+      required: true,
+    },
   },
-})
+  setup(props) {
+    const authStore = useAuthStore()
+    const ratingsStore = useRatingsStore()
 
-const authStore = useAuthStore()
-const currentHover = ref(0)
-const ratingsData = ref({})
+    const hoveredRating = ref(0)
+    const selectedRating = ref(0)
 
-// 初始化评分数据
-const initRatings = () => {
-  const allRatings = getFromStorage('ratings') || {}
+    const averageRating = computed(() => {
+      return ratingsStore.getAverageRating(props.resourceId)
+    })
 
-  if (!allRatings[props.resourceId]) {
-    allRatings[props.resourceId] = {
-      total: 0,
-      count: 0,
-      distribution: [0, 0, 0, 0, 0],
-      userRatings: {},
+    const ratingCount = computed(() => {
+      return ratingsStore.getRatingCount(props.resourceId)
+    })
+
+    const userRating = computed(() => {
+      if (!authStore.user) return null
+      return ratingsStore.getUserRating(props.resourceId, authStore.user.id)
+    })
+
+    const submitRating = async (score) => {
+      if (!authStore.user) return
+
+      try {
+        await ratingsStore.addRating({
+          resourceId: props.resourceId,
+          userId: authStore.user.id,
+          score: score,
+        })
+
+        selectedRating.value = score
+      } catch (error) {
+        console.error('Error submitting rating:', error)
+      }
     }
-  }
 
-  ratingsData.value = allRatings[props.resourceId]
+    onMounted(() => {
+      ratingsStore.initializeStore()
+    })
+
+    return {
+      authStore,
+      hoveredRating,
+      selectedRating,
+      averageRating,
+      ratingCount,
+      userRating,
+      submitRating,
+    }
+  },
 }
-
-// 计算属性
-const averageRating = computed(() => {
-  return ratingsData.value.count > 0 ? ratingsData.value.total / ratingsData.value.count : 0
-})
-
-const totalRatings = computed(() => ratingsData.value.count || 0)
-const ratingDistribution = computed(() => [...(ratingsData.value.distribution || [])].reverse())
-const userRating = computed(() => {
-  if (!authStore.isAuthenticated) return null
-  return ratingsData.value.userRatings?.[authStore.user.email] || null
-})
-
-// 方法
-const getProgressColor = (count) => {
-  const percentage = (count / totalRatings.value) * 100 || 0
-  if (percentage > 70) return 'success'
-  if (percentage > 40) return 'warning'
-  return 'danger'
-}
-
-const rate = (rating) => {
-  if (!authStore.isAuthenticated) {
-    alert('请先登录再进行评分')
-    return
-  }
-
-  const userId = authStore.user.email
-
-  // 如果用户已评分，先移除旧评分
-  if (userRating.value) {
-    ratingsData.value.total -= userRating.value
-    ratingsData.value.distribution[5 - userRating.value] -= 1
-  } else {
-    ratingsData.value.count += 1
-  }
-
-  // 添加新评分
-  ratingsData.value.total += rating
-  ratingsData.value.distribution[5 - rating] += 1
-  ratingsData.value.userRatings[userId] = rating
-
-  // 保存到localStorage
-  const allRatings = getFromStorage('ratings') || {}
-  allRatings[props.resourceId] = ratingsData.value
-  saveToStorage('ratings', allRatings)
-}
-
-// 初始化
-onMounted(initRatings)
 </script>
 
 <style scoped>
+.rating-widget {
+  padding: 1rem;
+  border: 1px solid #dee2e6;
+  border-radius: 0.5rem;
+  background-color: #f8f9fa;
+}
+
+.stars {
+  display: inline-block;
+}
+
 .star {
-  font-size: 2rem;
+  font-size: 1.2rem;
   color: #ddd;
+  cursor: default;
+}
+
+.star.filled {
+  color: #ffc107;
+}
+
+.stars.interactive .star {
   cursor: pointer;
   transition: color 0.2s;
 }
 
-.star.active {
-  color: gold;
+.stars.interactive .star:hover {
+  color: #ffeb3b;
 }
 
-.star:hover {
-  color: #ffd700;
+.star.small {
+  font-size: 0.9rem;
+}
+
+.rating-text {
+  font-size: 0.9rem;
+  color: #6c757d;
+}
+
+.login-prompt a {
+  color: #2c5aa0;
+  text-decoration: none;
+}
+
+.login-prompt a:hover {
+  text-decoration: underline;
 }
 </style>

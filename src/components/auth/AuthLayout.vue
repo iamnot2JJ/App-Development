@@ -1,25 +1,32 @@
 <template>
-  <div class="auth-layout bg-light">
-    <div class="container py-5">
-      <div class="row justify-content-center">
-        <div class="col-md-8 col-lg-6">
-          <div class="text-center mb-5">
-            <router-link to="/">
-              <img src="@/assets/logo.png" alt="MindCare Logo" height="60" class="mb-3" />
-            </router-link>
-            <h2 class="fw-bold">{{ title }}</h2>
-            <p class="text-muted">{{ subtitle }}</p>
-          </div>
+  <div class="container py-5">
+    <div class="row justify-content-center">
+      <div class="col-md-6">
+        <div class="card shadow">
+          <div class="card-body">
+            <ul class="nav nav-pills nav-justified mb-4">
+              <li class="nav-item">
+                <button
+                  class="nav-link w-100"
+                  :class="{ active: activeTab === 'login' }"
+                  @click="activeTab = 'login'"
+                >
+                  Login
+                </button>
+              </li>
+              <li class="nav-item">
+                <button
+                  class="nav-link w-100"
+                  :class="{ active: activeTab === 'register' }"
+                  @click="activeTab = 'register'"
+                >
+                  Register
+                </button>
+              </li>
+            </ul>
 
-          <div class="card shadow-sm border-0">
-            <div class="card-body p-4 p-md-5">
-              <slot></slot>
-            </div>
-          </div>
-
-          <div class="text-center mt-4">
-            <p class="text-muted mb-0">{{ footerText }}</p>
-            <router-link :to="footerLink" class="fw-medium">{{ footerLinkText }}</router-link>
+            <LoginForm v-if="activeTab === 'login'" @success="handleAuthSuccess" />
+            <RegisterForm v-else @success="handleAuthSuccess" />
           </div>
         </div>
       </div>
@@ -27,40 +34,30 @@
   </div>
 </template>
 
-<script setup>
-defineProps({
-  title: {
-    type: String,
-    default: 'Authentication',
+<script>
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+import LoginForm from './LoginForm.vue'
+import RegisterForm from './RegisterForm.vue'
+
+export default {
+  name: 'AuthLayout',
+  components: {
+    LoginForm,
+    RegisterForm,
   },
-  subtitle: {
-    type: String,
-    default: 'Access your account',
+  setup() {
+    const router = useRouter()
+    const activeTab = ref('login')
+
+    const handleAuthSuccess = () => {
+      router.push('/')
+    }
+
+    return {
+      activeTab,
+      handleAuthSuccess,
+    }
   },
-  footerText: {
-    type: String,
-    default: 'Already have an account?',
-  },
-  footerLinkText: {
-    type: String,
-    default: 'Sign in',
-  },
-  footerLink: {
-    type: String,
-    default: '/login',
-  },
-})
+}
 </script>
-
-<style scoped>
-.auth-layout {
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-}
-
-.card {
-  border-radius: 12px;
-  overflow: hidden;
-}
-</style>

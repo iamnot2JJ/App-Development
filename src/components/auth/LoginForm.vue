@@ -1,107 +1,109 @@
 <template>
-  <div class="container py-5">
-    <div class="row justify-content-center">
-      <div class="col-md-6">
-        <div class="card shadow">
-          <div class="card-header bg-primary text-white">
-            <h3 class="mb-0">登录您的账户</h3>
-          </div>
-          <div class="card-body">
-            <form @submit.prevent="handleLogin">
-              <div class="mb-3">
-                <label for="email" class="form-label">电子邮箱</label>
-                <input
-                  type="email"
-                  class="form-control"
-                  id="email"
-                  v-model="credentials.email"
-                  :class="{ 'is-invalid': v$.credentials.email.$error }"
-                />
-                <div v-if="v$.credentials.email.$error" class="invalid-feedback">
-                  {{ v$.credentials.email.$errors[0].$message }}
-                </div>
-              </div>
-
-              <div class="mb-3">
-                <label for="password" class="form-label">密码</label>
-                <input
-                  type="password"
-                  class="form-control"
-                  id="password"
-                  v-model="credentials.password"
-                  :class="{ 'is-invalid': v$.credentials.password.$error }"
-                />
-                <div v-if="v$.credentials.password.$error" class="invalid-feedback">
-                  {{ v$.credentials.password.$errors[0].$message }}
-                </div>
-              </div>
-
-              <div class="d-grid">
-                <button type="submit" class="btn btn-primary" :disabled="loading">
-                  <span v-if="loading" class="spinner-border spinner-border-sm"></span>
-                  登录
-                </button>
-              </div>
-
-              <div class="mt-3 text-center">
-                <p>还没有账户？ <router-link to="/register">立即注册</router-link></p>
-              </div>
-
-              <div v-if="errorMessage" class="alert alert-danger mt-3">
-                {{ errorMessage }}
-              </div>
-            </form>
-          </div>
-        </div>
+  <form @submit.prevent="handleLogin">
+    <div class="mb-3">
+      <label for="email" class="form-label">Email</label>
+      <input
+        type="email"
+        class="form-control"
+        :class="{ 'is-invalid': errors.email }"
+        id="email"
+        v-model="formData.email"
+        required
+      />
+      <div class="invalid-feedback" v-if="errors.email">
+        {{ errors.email }}
       </div>
     </div>
-  </div>
+
+    <div class="mb-3">
+      <label for="password" class="form-label">Password</label>
+      <input
+        type="password"
+        class="form-control"
+        :class="{ 'is-invalid': errors.password }"
+        id="password"
+        v-model="formData.password"
+        required
+      />
+      <div class="invalid-feedback" v-if="errors.password">
+        {{ errors.password }}
+      </div>
+    </div>
+
+    <div class="alert alert-danger" v-if="errors.general">
+      {{ errors.general }}
+    </div>
+
+    <button type="submit" class="btn btn-primary w-100" :disabled="isLoading">
+      <span v-if="isLoading" class="spinner-border spinner-border-sm me-2"></span>
+      {{ isLoading ? 'Logging in...' : 'Login' }}
+    </button>
+  </form>
 </template>
 
-<script setup>
+<script>
 import { reactive, ref } from 'vue'
-import { useRouter } from 'vue-router'
-import { useAuthStore } from '@/stores/auth'
-import { useVuelidate } from '@vuelidate/core'
-import { required, email, minLength } from '@/utils/validators'
+import { useAuthStore } from '../../stores/auth.js'
 
-const authStore = useAuthStore()
-const router = useRouter()
-const loading = ref(false)
-const errorMessage = ref('')
+export default {
+  name: 'LoginForm',
+  emits: ['success'],
+  setup(props, { emit }) {
+    const authStore = useAuthStore()
+    const isLoading = ref(false)
 
-const credentials = reactive({
-  email: '',
-  password: '',
-})
+    const formData = reactive({
+      email: '',
+      password: '',
+    })
 
-const rules = {
-  credentials: {
-    email: { required, email },
-    password: { required, minLength: minLength(6) },
+    const errors = reactive({})
+
+    const validateForm = () => {
+      const newErrors = {}
+
+      if (!formData.email) {
+        newErrors.email = 'Email is required'
+      } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+        newErrors.email = 'Please enter a valid email address'
+      }
+
+      if (!formData.password) {
+        newErrors.password = 'Password is required'
+      }
+
+      Object.assign(errors, newErrors)
+      return Object.keys(newErrors).length === 0
+    }
+
+    const handleLogin = async () => {
+      // Clear previous errors
+      Object.keys(errors).forEach((key) => delete errors[key])
+
+      if (!validateForm()) return
+
+      try {
+        isLoading.value = true
+
+        // Sanitize inputs
+        const sanitizedEmail = authStore.sanitizeInput(formData.email)
+        const sanitizedPassword = authStore.sanitizeInput(formData.password)
+
+        await authStore.login(sanitizedEmail, sanitizedPassword)
+        emit('success')
+      } catch (error) {
+        errors.general = error.message
+      } finally {
+        isLoading.value = false
+      }
+    }
+
+    return {
+      formData,
+      errors,
+      isLoading,
+      handleLogin,
+    }
   },
-}
-
-const v$ = useVuelidate(rules, { credentials })
-
-const handleLogin = async () => {
-  const isValid = await v$.value.$validate()
-
-  if (!isValid) return
-
-  try {
-    loading.value = true
-    errorMessage.value = ''
-
-    await authStore.login(credentials)
-
-    // 重定向或转到仪表盘
-    const redirect = router.currentRoute.value.query.redirect || '/dashboard'
-    router.push(redirect)
-  } catch (error) {
-    errorMessage.value = '登录失败，请检查您的凭证'
-  } finally {
-    loading.value = false
-  }
 }
 </script>
