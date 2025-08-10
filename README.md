@@ -252,8 +252,5 @@ functions/                      # Firebase Cloud Functions
 - 学号: [35524316]
 - 课程: FIT5032
 
-## 🎓 学术诚信声明
-
-本项目完全由学生独立完成，符合 Monash University 的学术诚信政策。所有使用的第三方库和资源都已适当引用。
-
----
+--
+```
