@@ -107,7 +107,8 @@
   </div>
 </template>
 <script>
-import { ref, nextTick } from 'vue'
+import { ref, nextTick, onMounted } from 'vue'
+import geminiService from '../services/geminiService.js'
 
 export default {
   name: 'AIChatPage',
@@ -116,6 +117,40 @@ export default {
     const currentMessage = ref('')
     const isTyping = ref(false)
     const messagesContainer = ref(null)
+    
+    // Add initialization check
+    onMounted(async () => {
+      console.log('🚀 === AIChatPage 组件已挂载 ===')
+      console.log('🔧 Gemini service 对象:', geminiService)
+      console.log('🔑 API Key 原始值:', import.meta.env.VITE_GEMINI_API_KEY)
+      console.log('🔑 API Key 存在:', !!import.meta.env.VITE_GEMINI_API_KEY)
+      console.log('🌍 所有环境变量:', import.meta.env)
+      
+      // Test service initialization
+      try {
+        console.log('💾 获取对话历史...')
+        const history = geminiService.getConversationHistory()
+        console.log('💾 对话历史:', history)
+        
+        // 测试一个简单的API调用
+        console.log('🧪 尝试测试API调用...')
+        const testResponse = await geminiService.sendMessage('Hello, this is a test. Please respond with "Test successful".')
+        console.log('🧪 测试API响应:', testResponse)
+        
+        if (testResponse.success) {
+          console.log('✅ API测试成功! 响应:', testResponse.message)
+        } else {
+          console.log('❌ API测试失败:', testResponse.error)
+        }
+      } catch (error) {
+        console.error('❌ 初始化或API测试错误:', error)
+        console.error('❌ 错误详情:', {
+          name: error.name,
+          message: error.message,
+          stack: error.stack
+        })
+      }
+    })
 
     const quickStarters = ref([
       {
@@ -178,22 +213,35 @@ export default {
       scrollToBottom()
 
       try {
-        // Simulate AI response
-        setTimeout(() => {
-          const responses = [
-            'Thank you for your question. I am your AI Health Assistant, happy to help you. Based on your needs, I recommend contacting local medical institutions for professional advice.',
-            'I understand your concern. As a health assistant, I suggest consulting with professional doctors for accurate medical advice. You can also browse our health resources page for more information.',
-            'This is a great health question. I can provide general health information, but please remember that any serious health issues should be discussed with medical professionals.',
-            'Based on your question, I recommend checking our health resources page or contacting medical professionals. If this is an emergency, please call 000 immediately.',
-            "I'm here to provide health guidance and support. For specific medical concerns, please consult with qualified healthcare providers in your area.",
-            'Your health and wellbeing are important. I can offer general information, but professional medical consultation is always recommended for health issues.',
-          ]
+        console.log('� === 开始发送消息 ===')
+        console.log('📤 用户消息:', messageCopy)
+        console.log('🔑 API Key 可用性:', !!import.meta.env.VITE_GEMINI_API_KEY)
+        console.log('🔑 完整 API Key:', import.meta.env.VITE_GEMINI_API_KEY)
+        console.log('🔧 Gemini Service 对象:', geminiService)
+        console.log('🔧 Service 方法:', Object.getOwnPropertyNames(geminiService))
+        
+        // 添加一个简单的API密钥测试
+        if (!import.meta.env.VITE_GEMINI_API_KEY) {
+          throw new Error('API密钥未配置，请检查.env文件')
+        }
+        
+        console.log('📡 调用 geminiService.sendMessage...')
+        
+        // Use real Gemini AI API
+        const response = await geminiService.sendMessage(messageCopy, {
+          userLocation: 'Australia',
+          preferredLanguage: 'English',
+          healthConcern: 'general'
+        })
 
-          const randomResponse = responses[Math.floor(Math.random() * responses.length)]
+        console.log('📥 Gemini 原始响应:', response)
+        console.log('✅ 响应成功状态:', response.success)
+        console.log('💬 响应消息:', response.message)
 
+        if (response.success) {
           const aiMessage = {
             id: Date.now() + 1,
-            text: randomResponse,
+            text: response.message,
             isUser: false,
             timestamp: new Date(),
           }
@@ -201,12 +249,21 @@ export default {
           messages.value.push(aiMessage)
           isTyping.value = false
           scrollToBottom()
-        }, 1500)
+          console.log('✅ 消息成功添加到界面')
+        } else {
+          console.error('❌ Gemini API 调用失败:', response.error)
+          console.error('❌ 错误详情:', response)
+          throw new Error(response.error || 'AI service error')
+        }
       } catch (error) {
-        console.error('Error sending message:', error)
+        console.error('💥 发送消息时出现异常:', error)
+        console.error('💥 错误名称:', error.name)
+        console.error('💥 错误消息:', error.message)
+        console.error('💥 错误堆栈:', error.stack)
+        
         const errorMessage = {
           id: Date.now() + 1,
-          text: 'Sorry, AI service is temporarily unavailable. Please try again later.',
+          text: `Sorry, AI service is temporarily unavailable. Please try again later.\n\nDebug Info: ${error.message}`,
           isUser: false,
           timestamp: new Date(),
         }

@@ -13,15 +13,27 @@ class GeminiService {
 
   initializeAI() {
     try {
+      console.log('🔧 Initializing Gemini AI...')
+      
       if (!this.apiKey) {
+        console.error('❌ API Key not found')
         throw new Error('Gemini API key not found. Please check your environment variables.')
       }
+      
+      console.log('✅ API Key found:', this.apiKey.substring(0, 10) + '...')
 
       this.genAI = new GoogleGenerativeAI(this.apiKey)
+      console.log('✅ GoogleGenerativeAI instance created')
+
+      // Try different model names based on availability
+      const modelNames = ['gemini-1.5-flash', 'gemini-1.5-pro', 'gemini-pro'];
+      let modelName = modelNames[0]; // Default to first option
+      
+      console.log('🔧 Trying model:', modelName)
 
       // Initialize the model with health-focused configuration
       this.model = this.genAI.getGenerativeModel({
-        model: 'gemini-1.5-pro',
+        model: modelName,
         generationConfig: {
           temperature: 0.7,
           topK: 40,
@@ -48,9 +60,11 @@ class GeminiService {
         ],
       })
 
+      console.log('✅ Gemini model configured with:', modelName)
       this.initializeChat()
+      console.log('✅ Gemini AI fully initialized')
     } catch (error) {
-      console.error('Failed to initialize Gemini AI:', error)
+      console.error('❌ Failed to initialize Gemini AI:', error)
       throw error
     }
   }
@@ -108,7 +122,10 @@ Always maintain a professional, caring, and helpful tone.`
 
   async sendMessage(message, context = {}) {
     try {
+      console.log('🚀 Starting sendMessage with:', { message, context })
+      
       if (!this.chat) {
+        console.error('❌ Chat not initialized')
         throw new Error('Chat not initialized')
       }
 
@@ -124,9 +141,17 @@ Always maintain a professional, caring, and helpful tone.`
         enhancedMessage += `\n\nHealth concern category: ${context.healthConcern}`
       }
 
+      console.log('📝 Enhanced message:', enhancedMessage)
+      console.log('💬 Sending to Gemini API...')
+
       const result = await this.chat.sendMessage(enhancedMessage)
+      console.log('📦 Raw result from API:', result)
+      
       const response = await result.response
+      console.log('📄 Response object:', response)
+      
       const text = response.text()
+      console.log('📝 Response text:', text)
 
       // Store conversation history
       this.conversationHistory.push({
@@ -136,6 +161,7 @@ Always maintain a professional, caring, and helpful tone.`
         context: context,
       })
 
+      console.log('✅ Message processed successfully')
       return {
         success: true,
         message: text,
@@ -146,7 +172,13 @@ Always maintain a professional, caring, and helpful tone.`
         },
       }
     } catch (error) {
-      console.error('Error sending message to Gemini:', error)
+      console.error('❌ Error sending message to Gemini:', error)
+      console.error('❌ Error details:', {
+        name: error.name,
+        message: error.message,
+        stack: error.stack,
+        cause: error.cause
+      })
 
       let errorMessage = 'I apologize, but I encountered an error while processing your message. '
 

@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gemini API Test</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            max-width: 900px; 
+            margin: 0 auto; 
+            padding: 20px; 
+            background-color: #f8f9fa;
+        }
+        .header { 
+            text-align: center; 
+            background: linear-gradient(135deg, #007bff, #0056b3); 
+            color: white; 
+            padding: 30px; 
+            border-radius: 10px; 
+            margin-bottom: 30px; 
+        }
+        .test-box { 
+            margin: 20px 0; 
+            padding: 20px; 
+            border: 2px solid #ddd; 
+            border-radius: 10px; 
+            background: white;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .test-box h3 {
+            margin-top: 0;
+            color: #333;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 10px;
+        }
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .status-item:last-child {
+            border-bottom: none;
+        }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        .loading { background-color: #d1ecf1; border-color: #bee5eb; }
+        button { 
+            padding: 15px 30px; 
+            background: #007bff; 
+            color: white; 
+            border: none; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        button:hover {
+            background: #0056b3;
+            transform: translateY(-2px);
+        }
+        #response { 
+            margin-top: 15px; 
+            padding: 15px; 
+            background: #f8f9fa; 
+            border-radius: 8px; 
+            white-space: pre-wrap; 
+            border: 1px solid #ddd;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🤖 Gemini API 测试页面</h1>
+        <p>诊断AI助手问题的专用工具</p>
+    </div>
+    
+    <div class="test-box">
+        <h3>📋 环境检查</h3>
+        <div class="status-item">
+            <strong>API Key 状态:</strong>
+            <span id="api-key-status" style="font-weight: bold;">🔄 检查中...</span>
+        </div>
+        <div class="status-item">
+            <strong>Gemini 包状态:</strong>
+            <span id="package-status" style="font-weight: bold;">🔄 检查中...</span>
+        </div>
+        <div class="status-item">
+            <strong>网络连接:</strong>
+            <span id="network-status" style="font-weight: bold;">🔄 检查中...</span>
+        </div>
+    </div>
+
+    <div class="test-box">
+        <h3>🧪 API 功能测试</h3>
+        <p>点击下面的按钮测试Gemini API是否正常工作：</p>
+        <button onclick="testGeminiAPI()">🚀 测试 Gemini API</button>
+        <div id="response"></div>
+    </div>
+
+    <div class="test-box">
+        <h3>📝 调试信息</h3>
+        <p>请打开浏览器开发者控制台（按F12键）查看详细的调试日志。</p>
+        <button onclick="showDebugInfo()">📊 显示调试信息</button>
+        <div id="debug-info"></div>
+    </div>
+
+    <script type="module">
+        console.log('🚀 测试页面加载开始...');
+        
+        // 检查环境变量
+        console.log('🔧 检查环境变量...');
+        const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+        console.log('🔑 API Key:', apiKey ? ('已找到: ' + apiKey.substring(0, 10) + '...') : '未找到');
+        
+        const apiStatus = document.getElementById('api-key-status');
+        const packageStatus = document.getElementById('package-status');
+        const networkStatus = document.getElementById('network-status');
+        
+        if (apiKey) {
+            apiStatus.textContent = '✅ 已配置 (' + apiKey.substring(0, 10) + '...)';
+            apiStatus.style.color = 'green';
+            console.log('✅ API Key 状态: 已配置');
+        } else {
+            apiStatus.textContent = '❌ 未配置';
+            apiStatus.style.color = 'red';
+            console.log('❌ API Key 状态: 未配置');
+        }
+        
+        // 检查网络
+        console.log('🌐 检查网络连接...');
+        try {
+            const response = await fetch('https://www.google.com/favicon.ico', { mode: 'no-cors' });
+            networkStatus.textContent = '✅ 网络正常';
+            networkStatus.style.color = 'green';
+            console.log('✅ 网络状态: 正常');
+        } catch (error) {
+            networkStatus.textContent = '❌ 网络连接问题';
+            networkStatus.style.color = 'red';
+            console.log('❌ 网络状态: 连接问题', error);
+        }
+        
+        // 检查 Gemini 包
+        console.log('📦 检查 Gemini 包...');
+        try {
+            const { GoogleGenerativeAI } = await import('@google/generative-ai');
+            packageStatus.textContent = '✅ 已正确安装';
+            packageStatus.style.color = 'green';
+            console.log('✅ Gemini 包状态: 已安装');
+            
+            // 全局测试函数
+            window.testGeminiAPI = async function() {
+                console.log('🧪 开始API测试...');
+                const responseDiv = document.getElementById('response');
+                responseDiv.innerHTML = '⏳ 正在测试 API连接...';
+                responseDiv.className = 'loading';
+                
+                try {
+                    if (!apiKey) {
+                        throw new Error('API Key 未配置，请检查.env文件');
+                    }
+                    
+                    console.log('🔑 使用API Key:', apiKey.substring(0, 10) + '...');
+                    
+                    const genAI = new GoogleGenerativeAI(apiKey);
+                    console.log('✅ GoogleGenerativeAI 实例创建成功');
+                    
+                    const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
+                    console.log('✅ 模型配置成功');
+                    
+                    console.log('📤 发送测试消息到Gemini...');
+                    const result = await model.generateContent('Hello! Please respond with "API test successful" in English.');
+                    console.log('📦 收到原始结果:', result);
+                    
+                    const response = await result.response;
+                    console.log('📄 处理响应对象:', response);
+                    
+                    const text = response.text();
+                    console.log('📝 提取文本内容:', text);
+                    
+                    responseDiv.innerHTML = `✅ API 测试成功！\n\n🤖 Gemini回复: ${text}\n\n⏰ 测试时间: ${new Date().toLocaleString()}`;
+                    responseDiv.className = 'success';
+                    
+                    console.log('✅ API测试完全成功!');
+                    
+                } catch (error) {
+                    console.error('❌ API测试失败:', error);
+                    responseDiv.innerHTML = `❌ API 测试失败!\n\n错误类型: ${error.name || 'Unknown'}\n错误信息: ${error.message}\n\n详细信息: ${error.stack || '无详细信息'}\n\n⏰ 测试时间: ${new Date().toLocaleString()}`;
+                    responseDiv.className = 'error';
+                }
+            };
+            
+            // 调试信息函数
+            window.showDebugInfo = function() {
+                console.log('📊 显示调试信息...');
+                const debugDiv = document.getElementById('debug-info');
+                debugDiv.innerHTML = `
+                    <h4>🔧 系统信息:</h4>
+                    <p><strong>用户代理:</strong> ${navigator.userAgent}</p>
+                    <p><strong>当前URL:</strong> ${window.location.href}</p>
+                    <p><strong>API Key:</strong> ${apiKey ? '已配置 (' + apiKey.length + ' 字符)' : '未配置'}</p>
+                    <p><strong>完整API Key:</strong> ${apiKey || '无'}</p>
+                    <h4>🌍 环境变量:</h4>
+                    <pre>${JSON.stringify(import.meta.env, null, 2)}</pre>
+                `;
+            };
+            
+        } catch (error) {
+            packageStatus.textContent = '❌ 安装失败: ' + error.message;
+            packageStatus.style.color = 'red';
+            console.error('❌ Gemini 包加载错误:', error);
+            
+            // 如果包加载失败，创建一个简单的测试函数
+            window.testGeminiAPI = function() {
+                const responseDiv = document.getElementById('response');
+                responseDiv.innerHTML = `❌ 无法测试API\n\nGemini包未正确安装: ${error.message}`;
+                responseDiv.className = 'error';
+            };
+        }
+        
+        console.log('✅ 测试页面初始化完成');
+    </script>
+</body>
+</html>
