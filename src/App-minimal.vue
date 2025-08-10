@@ -29,12 +29,6 @@ export default {
 <style>
 #app {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-}
-
-main {
-  flex: 1;
+  padding: 20px;
 }
 </style>

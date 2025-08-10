@@ -16,7 +16,7 @@
           <div class="row align-items-center">
             <div class="col-md-6">
               <h1 class="display-4 fw-bold mb-4 text-primary">Welcome to MigrantCare</h1>
-              <p class="lead mb-4 text-secondary">
+              <p class="lead mb-4">
                 Supporting migrant communities with essential health resources, mental wellness
                 support, and community connections across Australia.
               </p>
@@ -34,7 +34,7 @@
               </div>
             </div>
             <div class="col-md-6">
-              <div class="hero-stats bg-white text-dark p-4 rounded shadow border">
+              <div class="hero-stats bg-white text-dark p-4 rounded shadow">
                 <h3 class="text-primary mb-3">Community Impact</h3>
                 <div class="row text-center">
                   <div class="col-4">
@@ -60,40 +60,21 @@
       <section class="py-5">
         <div class="container">
           <div class="text-center mb-5">
-            <h2 class="display-6 fw-bold text-dark">Our Services</h2>
+            <h2 class="display-6 fw-bold">Our Services</h2>
             <p class="lead text-secondary">Comprehensive support for migrant communities</p>
           </div>
 
           <div class="row g-4">
-            <div class="col-md-3" v-for="service in services" :key="service.id">
-              <component
-                :is="service.route ? 'router-link' : 'div'"
-                :to="service.route"
-                class="card h-100 shadow-sm service-card"
-                :class="{ clickable: service.route }"
-                style="text-decoration: none; color: inherit"
-              >
+            <div class="col-md-4" v-for="service in services" :key="service.id">
+              <div class="card h-100 shadow-sm">
                 <div class="card-body text-center">
-                  <div class="service-icon mb-3 position-relative">
+                  <div class="service-icon mb-3">
                     <i :class="service.icon" class="display-4 text-primary"></i>
-                    <span
-                      v-if="service.isNew"
-                      class="badge bg-success position-absolute top-0 start-100 translate-middle"
-                      style="font-size: 0.6rem"
-                    >
-                      NEW
-                    </span>
                   </div>
                   <h5 class="card-title">{{ service.title }}</h5>
                   <p class="card-text">{{ service.description }}</p>
-                  <div v-if="service.route" class="mt-auto">
-                    <small class="text-primary">
-                      <i class="fas fa-arrow-right me-1" aria-hidden="true"></i>
-                      Try Now
-                    </small>
-                  </div>
                 </div>
-              </component>
+              </div>
             </div>
           </div>
         </div>
@@ -103,7 +84,7 @@
       <section class="py-5 bg-white border-top">
         <div class="container">
           <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2 class="display-6 fw-bold text-dark">Latest Resources</h2>
+            <h2 class="display-6 fw-bold">Latest Resources</h2>
             <router-link to="/resources" class="btn btn-primary"> View All Resources </router-link>
           </div>
 
@@ -140,7 +121,7 @@
       </section>
 
       <!-- Call to Action -->
-      <section class="py-5 bg-white border-top">
+      <section class="py-5 bg-white text-dark border-top">
         <div class="container text-center">
           <h2 class="display-6 fw-bold mb-4 text-primary">Ready to Get Started?</h2>
           <p class="lead mb-4 text-secondary">
@@ -203,22 +184,13 @@ export default {
       },
       {
         id: 2,
-        title: 'AI Health Assistant',
-        description:
-          'Get instant, personalized health guidance 24/7. Our AI assistant provides culturally sensitive support and answers your health questions.',
-        icon: 'fas fa-robot',
-        isNew: true,
-        route: '/ai-chat',
-      },
-      {
-        id: 3,
         title: 'Mental Health Support',
         description:
           'Access culturally appropriate mental health services, counseling, and community support groups designed for migrant communities.',
         icon: 'fas fa-brain',
       },
       {
-        id: 4,
+        id: 3,
         title: 'Legal Assistance',
         description:
           'Understand your rights and access legal aid services. Get help with workplace rights, housing, and immigration matters.',
@@ -285,44 +257,12 @@ export default {
   justify-content: center;
 }
 
-.service-card.clickable {
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.service-card.clickable:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 8px 25px rgba(0, 123, 255, 0.15);
-  border-color: #007bff;
-}
-
 .card {
   transition: transform 0.2s;
 }
 
 .card:hover {
   transform: translateY(-5px);
-}
-
-/* Enhanced text readability */
-.card-title {
-  color: #2c3e50 !important;
-  font-weight: 600;
-}
-
-.card-text {
-  color: #495057 !important;
-  line-height: 1.6;
-}
-
-/* Better visibility for section headers */
-.display-6 {
-  color: #2c3e50 !important;
-}
-
-.lead {
-  color: #6c757d !important;
-  font-weight: 500;
 }
 
 .stars {
