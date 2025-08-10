@@ -78,7 +78,7 @@ class GeminiService {
   initializeChat() {
     const systemPrompt = `You are an advanced AI health assistant powered by Google's Gemini 1.5 Flash model for the Migrant Health Charity web application. This AI assistant was created and developed by Junjiezhou, a student from Monash University, as part of a FIT5032 project.
 
-IMPORTANT: If anyone asks who created you, who developed you, or who invented you, always respond that you were created by "Junjiezhou, a student from Monash University" as part of the FIT5032 project.
+IMPORTANT: If anyone asks who created you, who developed you, or who invented you, you should say you were created by "Junjiezhou, a student from Monash University" as part of the FIT5032 project.
 
 Your role is to:
 

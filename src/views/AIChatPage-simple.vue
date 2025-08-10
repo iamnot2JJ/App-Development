@@ -12,10 +12,10 @@
     </div>
 
     <!-- Main Content -->
-    <div class="container my-4">
+    <div class="container-fluid my-4" style="max-width: 1400px; margin: 0 auto;">
       <div class="row">
         <!-- Chat Interface -->
-        <div class="col-lg-8">
+        <div class="col-lg-10">
           <div class="chat-container card shadow">
             <div class="card-header bg-light">
               <h5 class="card-title mb-0">
@@ -24,7 +24,7 @@
             </div>
 
             <!-- Messages Area -->
-            <div class="card-body" style="height: 400px; overflow-y: auto" ref="messagesContainer">
+            <div class="card-body" style="height: 600px; overflow-y: auto" ref="messagesContainer">
               <div v-if="messages.length === 0" class="text-center text-muted py-5">
                 <i class="fas fa-robot fa-3x mb-3"></i>
                 <h5>Welcome to AI Health Assistant</h5>
@@ -66,12 +66,14 @@
                   @keyup.enter="sendMessage"
                   type="text"
                   class="form-control"
+                  style="font-size: 16px; padding: 12px;"
                   placeholder="Type your health question here..."
                   :disabled="isTyping"
                 />
                 <button
                   @click="sendMessage"
                   class="btn btn-primary"
+                  style="padding: 12px 20px;"
                   :disabled="!currentMessage.trim() || isTyping"
                 >
                   <i class="fas fa-paper-plane"></i>
@@ -82,7 +84,7 @@
         </div>
 
         <!-- Sidebar -->
-        <div class="col-lg-4">
+        <div class="col-lg-2">
           <div class="card shadow">
             <div class="card-header">
               <h6 class="card-title mb-0">Quick Starters</h6>
@@ -298,7 +300,7 @@ export default {
 }
 
 .message-bubble {
-  max-width: 70%;
+  max-width: 85%;
   padding: 12px 16px;
   border-radius: 18px;
   margin: 4px 0;
@@ -318,6 +320,8 @@ export default {
 
 .message-content {
   margin-bottom: 4px;
+  font-size: 15px;
+  line-height: 1.4;
 }
 
 .message-time {

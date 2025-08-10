@@ -21,60 +21,95 @@ export const useAuthStore = defineStore('auth', {
 
   getters: {
     isAuthenticated: (state) => !!state.user,
-    isAdmin: (state) => state.user?.role === 'admin',
+    isAdmin: (state) => state.user?.role === 'admin' || state.user?.role === 'super-admin',
+    isSuperAdmin: (state) => state.user?.role === 'super-admin',
   },
 
   actions: {
     async initializeStore() {
+      console.log('Initializing auth store...')
       this.loading = true
 
-      // Listen for auth state changes
+      // Initialize legacy users for admin login - always ensure these exist
+      const defaultUsers = [
+        {
+          id: 1,
+          email: 'admin@migrantcare.org',
+          password: 'Admin123!',
+          firstName: 'Admin',
+          lastName: 'User',
+          role: 'admin',
+          registeredAt: new Date().toISOString(),
+        },
+        {
+          id: 2,
+          email: 'junjiezhou@monash.edu',
+          password: 'FIT5032Admin!',
+          firstName: 'Junjie',
+          lastName: 'Zhou',
+          role: 'admin',
+          registeredAt: new Date().toISOString(),
+        },
+        {
+          id: 3,
+          email: 'superadmin@migrantcare.org',
+          password: 'SuperAdmin123!',
+          firstName: 'Super',
+          lastName: 'Admin',
+          role: 'super-admin',
+          registeredAt: new Date().toISOString(),
+        },
+      ]
+
+      // Always use default users for admin accounts
+      this.users = defaultUsers
+      localStorage.setItem('users', JSON.stringify(this.users))
+      console.log('Admin users initialized:', this.users)
+
+      // Check for existing current user
+      const storedCurrentUser = localStorage.getItem('currentUser')
+      if (storedCurrentUser) {
+        try {
+          this.user = JSON.parse(storedCurrentUser)
+          console.log('Restored current user:', this.user)
+        } catch (error) {
+          console.error('Error parsing stored user:', error)
+          localStorage.removeItem('currentUser')
+        }
+      }
+
+      // Firebase auth state listener
       onAuthStateChanged(auth, async (firebaseUser) => {
         if (firebaseUser) {
-          // Get additional user data from Firestore
-          const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid))
-          if (userDoc.exists()) {
-            this.user = {
-              id: firebaseUser.uid,
-              email: firebaseUser.email,
-              ...userDoc.data(),
+          try {
+            // Get additional user data from Firestore
+            const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid))
+            if (userDoc.exists()) {
+              this.user = {
+                id: firebaseUser.uid,
+                email: firebaseUser.email,
+                ...userDoc.data(),
+              }
+            } else {
+              // Create user document if it doesn't exist
+              const userData = {
+                email: firebaseUser.email,
+                firstName: firebaseUser.displayName?.split(' ')[0] || 'User',
+                lastName: firebaseUser.displayName?.split(' ')[1] || '',
+                role: 'user',
+                registeredAt: new Date().toISOString(),
+              }
+              await setDoc(doc(db, 'users', firebaseUser.uid), userData)
+              this.user = { id: firebaseUser.uid, ...userData }
             }
-          } else {
-            // Create user document if it doesn't exist
-            const userData = {
-              email: firebaseUser.email,
-              firstName: firebaseUser.displayName?.split(' ')[0] || 'User',
-              lastName: firebaseUser.displayName?.split(' ')[1] || '',
-              role: 'user',
-              registeredAt: new Date().toISOString(),
-            }
-            await setDoc(doc(db, 'users', firebaseUser.uid), userData)
-            this.user = { id: firebaseUser.uid, ...userData }
+          } catch (error) {
+            console.error('Firebase auth error:', error)
           }
-        } else {
-          this.user = null
         }
         this.loading = false
       })
 
-      // Initialize legacy users for backwards compatibility
-      const storedUsers = localStorage.getItem('users')
-      if (storedUsers) {
-        this.users = JSON.parse(storedUsers)
-      } else {
-        this.users = [
-          {
-            id: 1,
-            email: 'admin@migranthelp.org',
-            password: 'admin123',
-            firstName: 'Admin',
-            lastName: 'User',
-            role: 'admin',
-            registeredAt: new Date().toISOString(),
-          },
-        ]
-        localStorage.setItem('users', JSON.stringify(this.users))
-      }
+      this.loading = false
     },
 
     async registerWithFirebase(userData) {
@@ -228,19 +263,25 @@ export const useAuthStore = defineStore('auth', {
     },
 
     login(email, password) {
+      console.log('Login attempt:', email)
+      console.log('Available users:', this.users)
+      
       // Validate input
       if (!email || !password) {
         throw new Error('Email and password are required')
       }
 
       const user = this.users.find((u) => u.email === email && u.password === password)
+      console.log('Found user:', user)
 
       if (!user) {
+        console.log('Login failed - user not found or password mismatch')
         throw new Error('Invalid email or password')
       }
 
       this.user = user
       localStorage.setItem('currentUser', JSON.stringify(user))
+      console.log('Login successful, user set:', this.user)
 
       return user
     },

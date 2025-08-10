@@ -116,6 +116,32 @@
             </li>
           </template>
 
+          <!-- Public Data Tables Demo -->
+          <li class="nav-item">
+            <router-link
+              to="/data-demo"
+              class="nav-link"
+              :class="{ active: $route.name === 'DataDemo' }"
+              @click="closeNavbar"
+            >
+              <i class="fas fa-chart-bar me-1" aria-hidden="true"></i>
+              Data Demo
+            </router-link>
+          </li>
+
+          <!-- Public Appointment Booking -->
+          <li class="nav-item">
+            <router-link
+              to="/book-appointment"
+              class="nav-link"
+              :class="{ active: $route.name === 'BookAppointment' }"
+              @click="closeNavbar"
+            >
+              <i class="fas fa-calendar-plus me-1" aria-hidden="true"></i>
+              Book Appointment
+            </router-link>
+          </li>
+
           <li class="nav-item">
             <router-link
               to="/about"
@@ -138,6 +164,19 @@
             >
               <i class="fas fa-cog me-1" aria-hidden="true"></i>
               Admin
+            </router-link>
+          </li>
+
+          <!-- Admin Login link (visible when not admin) -->
+          <li class="nav-item" v-if="!authStore.isAdmin">
+            <router-link
+              to="/admin/login"
+              class="nav-link"
+              :class="{ active: $route.name === 'AdminLogin' }"
+              @click="closeNavbar"
+            >
+              <i class="fas fa-shield-alt me-1" aria-hidden="true"></i>
+              Admin Login
             </router-link>
           </li>
         </ul>

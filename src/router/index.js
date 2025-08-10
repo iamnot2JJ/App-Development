@@ -4,6 +4,10 @@ import HomeView from '../views/public/HomeView.vue'
 import ResourcesView from '../views/public/ResourcesView.vue'
 import AboutView from '../views/public/AboutView.vue'
 import AdminDashboard from '../views/admin/AdminDashboard.vue'
+import AdminLogin from '../views/admin/AdminLogin.vue'
+import AuthTest from '../views/admin/AuthTest.vue'
+import DataTablesView from '../views/DataTablesView.vue'
+import AppointmentBookingSimple from '../views/AppointmentBookingSimple.vue'
 import AuthLayout from '../components/auth/AuthLayout.vue'
 
 // Lazy load components for better performance
@@ -49,6 +53,22 @@ const routes = [
     },
   },
   {
+    path: '/admin/login',
+    name: 'AdminLogin',
+    component: AdminLogin,
+    meta: {
+      title: 'Admin Login - Migrant Health Charity',
+    },
+  },
+  {
+    path: '/auth-test',
+    name: 'AuthTest',
+    component: AuthTest,
+    meta: {
+      title: 'Auth Test - Migrant Health Charity',
+    },
+  },
+  {
     path: '/map',
     name: 'Map',
     component: MapComponent,
@@ -73,12 +93,28 @@ const routes = [
     },
   },
   {
+    path: '/book-appointment',
+    name: 'BookAppointment',
+    component: AppointmentBookingSimple,
+    meta: {
+      title: 'Book Appointment - Migrant Health Charity',
+    },
+  },
+  {
     path: '/data-tables',
     name: 'DataTables',
     component: InteractiveDataTable,
     meta: {
       requiresAuth: true,
       title: 'Data Tables - Migrant Health Charity',
+    },
+  },
+  {
+    path: '/data-demo',
+    name: 'DataDemo',
+    component: DataTablesView,
+    meta: {
+      title: 'Data Tables Demo - Migrant Health Charity',
     },
   },
   {
@@ -130,7 +166,13 @@ router.beforeEach((to, from, next) => {
   }
 
   // Check admin requirements
-  if (to.meta.requiresAdmin && authStore.user?.role !== 'admin') {
+  if (to.meta.requiresAdmin && !authStore.isAdmin) {
+    // Redirect to admin login if trying to access admin pages
+    if (to.path.startsWith('/admin') && to.path !== '/admin/login') {
+      next('/admin/login')
+      return
+    }
+    // Otherwise redirect to home
     next('/')
     return
   }

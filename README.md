@@ -1,16 +1,10 @@
 # Migrant Health Charity Web Application
 
-**FIT5032 App Development - Business Requirements D, E, F Implementation**
-
 ## 项目概述
 
-这是一个为移民健康慈善机构开发的综合性 Web 应用程序，专为 FIT5032 App Development 课程设计，实现了所有 Business Requirements D、E 和 F，并达到"Exceeds Expectations"标 4. **地图服务**: 查找附近的医疗服务提供者 5. **AI 健康助手**: 24/7 智能健康咨询和指导 6. **预约预订**: 在线预订医疗服务 7. **数据导出**: 导出个人数据记录 8. **可访问性**: 使用辅助功能工具该应用程序为移民社区提供健康资源访问、医疗服务定位、预约预订和多语言支持等功能。
+这是一个为移民健康慈善机构开发的综合性 Web 应用程序，专为 FIT5032 **地图服务**: 查找附近的医疗服务提供者 **AI 健康助手**: 24/7 智能健康咨询和指导 **预约预订**: 在线预订医疗服务 **数据导出**: 导出个人数据记录 **可访问性**: 使用辅助功能工具该应用程序为移民社区提供健康资源访问、医疗服务定位、预约预订和多语言支持等功能。
 
-## 🎯 Business Requirements 实现
-
-### Business Requirement D - Advanced Features (已实现)
-
-#### D.1 外部认证服务 ✅
+#### D.1 外部认证服务
 
 - **实现**: Firebase Authentication with Google OAuth
 - **功能**:
@@ -19,7 +13,7 @@
   - 角色基础访问控制 (用户/管理员)
   - 安全会话管理
 
-#### D.2 邮件服务 ✅
+#### D.2 邮件服务
 
 - **实现**: Nodemailer with Firebase Cloud Functions
 - **功能**:
@@ -29,7 +23,7 @@
   - 邮件模板系统
   - 发送状态追踪
 
-#### D.3 交互式数据表格 ✅
+#### D.3 交互式数据表格
 
 - **实现**: 自定义 Vue 组件
 - **功能**:
@@ -40,7 +34,7 @@
   - 数据导出到 CSV
   - 响应式设计
 
-#### D.4 云部署 ✅
+#### D.4 云部署
 
 - **实现**: Firebase Hosting + Cloud Functions
 - **功能**:
@@ -49,9 +43,7 @@
   - SSL/HTTPS 支持
   - 环境变量管理
 
-### Business Requirement E - Expert Features (已实现)
-
-#### E.1 云函数 ✅
+#### E.1 云函数
 
 - **实现**: Firebase Cloud Functions (Node.js)
 - **功能**:
@@ -61,7 +53,7 @@
   - 定时任务执行
   - API 端点管理
 
-#### E.2 地理位置服务 ✅
+#### E.2 地理位置服务
 
 - **实现**: Leaflet Maps with OpenStreetMap
 - **功能**:
@@ -71,7 +63,7 @@
   - 地理编码和搜索
   - 用户位置检测
 
-#### E.3 可访问性 ✅
+#### E.3 可访问性
 
 - **实现**: WCAG 2.1 AA 合规
 - **功能**:
@@ -82,7 +74,7 @@
   - 字体大小调整
   - 语义化 HTML 结构
 
-#### E.4 数据导出 ✅
+#### E.4 数据导出
 
 - **实现**: 多格式导出系统
 - **功能**:
@@ -93,9 +85,7 @@
   - 导出历史记录
   - 定时导出功能
 
-### Business Requirement F - Innovation (已实现)
-
-#### F.1 创新功能 ✅
+#### F.1 创新功能
 
 **GenAI 聊天机器人**:
 
@@ -214,48 +204,9 @@ functions/                      # Firebase Cloud Functions
 └── DEPLOYMENT.md              # 部署指南
 ```
 
-## 🚀 快速开始
-
-### 1. 克隆项目
-
-```bash
-git clone <repository-url>
-cd migrant-health-charity
 ```
 
-### 2. 安装依赖
-
-```bash
-npm install
-```
-
-### 3. 环境配置
-
-创建 `.env` 文件：
-
-```env
-VITE_FIREBASE_API_KEY=your_api_key
-VITE_FIREBASE_AUTH_DOMAIN=your_domain
-VITE_FIREBASE_PROJECT_ID=your_project_id
-VITE_FIREBASE_STORAGE_BUCKET=your_bucket
-VITE_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
-VITE_FIREBASE_APP_ID=your_app_id
-VITE_GEMINI_API_KEY=your_gemini_api_key
-```
-
-### 4. 启动开发服务器
-
-```bash
-npm run dev
-```
-
-### 5. 构建生产版本
-
-```bash
-npm run build
-```
-
-## 📱 功能演示
+##  功能演示
 
 ### 用户功能
 
@@ -275,7 +226,7 @@ npm run build
 5. **系统监控**: 查看日志和系统状态
 6. **数据分析**: 导出和分析系统数据
 
-## 🔒 安全特性
+##  安全特性
 
 - **输入验证**: 所有用户输入都经过验证和清理
 - **XSS 防护**: 使用 DOMPurify 防止跨站脚本攻击
@@ -283,7 +234,7 @@ npm run build
 - **数据访问控制**: Firestore 规则确保数据安全
 - **HTTPS 加密**: 所有通信都经过加密
 
-## ♿ 可访问性合规
+##  可访问性合规
 
 本应用程序遵循 WCAG 2.1 AA 标准：
 
@@ -294,59 +245,12 @@ npm run build
 - **语义化**: 使用适当的 HTML 语义元素
 - **ARIA 标签**: 完整的 ARIA 属性支持
 
-## 🌐 浏览器支持
-
-- Chrome 90+
-- Firefox 88+
-- Safari 14+
-- Edge 90+
-
-## 📊 性能优化
-
-- **代码分割**: 动态导入减少初始加载时间
-- **图片优化**: WebP 格式支持
-- **缓存策略**: 适当的浏览器缓存
-- **CDN**: Firebase CDN 全球分发
-- **懒加载**: 按需加载组件和资源
-
-## 🧪 测试
-
-```bash
-# 运行 linting
-npm run lint
-
-# 格式化代码
-npm run format
-
-# 构建检查
-npm run build
-```
-
-## 📚 文档
-
-- [部署指南](./DEPLOYMENT.md) - 详细的部署说明
-
-## 🤝 贡献
-
-这是一个学术项目，专为 FIT5032 课程开发。
-
-## 📄 许可证
-
-此项目仅用于教育目的，版权归 Monash University 所有。
 
 ## 👥 作者
 
 **学生信息**:
 
-- 姓名: [学生姓名]
-- 学号: [学生学号]
-- 课程: FIT5032 App Development
-- 学期: [学期年份]
-
-## 🎓 学术诚信声明
-
-本项目完全由学生独立完成，符合 Monash University 的学术诚信政策。所有使用的第三方库和资源都已适当引用。
-
----
-
-**注意**: 这是一个演示应用程序，用于学术评估。在生产环境中使用前，请确保进行适当的安全审计和性能测试。
+- 姓名: [Junjie Zhou]
+- 学号: [35524316]
+- 课程: FIT5032
+```
