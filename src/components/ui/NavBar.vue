@@ -81,18 +81,6 @@
           <template v-if="authStore.isAuthenticated">
             <li class="nav-item">
               <router-link
-                to="/appointments"
-                class="nav-link"
-                :class="{ active: $route.name === 'Appointments' }"
-                @click="closeNavbar"
-              >
-                <i class="fas fa-calendar-alt me-1" aria-hidden="true"></i>
-                Appointments
-              </router-link>
-            </li>
-
-            <li class="nav-item">
-              <router-link
                 to="/data-tables"
                 class="nav-link"
                 :class="{ active: $route.name === 'DataTables' }"

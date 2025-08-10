@@ -13,7 +13,6 @@ import AuthLayout from '../components/auth/AuthLayout.vue'
 // Lazy load components for better performance
 const MapComponent = () => import('../components/geo/MapComponent.vue')
 const ExportComponent = () => import('../components/export/ExportComponent.vue')
-const AppointmentBooking = () => import('../components/booking/AppointmentBooking.vue')
 const InteractiveDataTable = () => import('../components/ui/InteractiveDataTable.vue')
 const AIChatPage = () => import('../views/AIChatPage-simple.vue')
 
@@ -81,15 +80,6 @@ const routes = [
     meta: {
       requiresAuth: true,
       title: 'Data Export - Migrant Health Charity',
-    },
-  },
-  {
-    path: '/appointments',
-    name: 'Appointments',
-    component: AppointmentBooking,
-    meta: {
-      requiresAuth: true,
-      title: 'Book Appointment - Migrant Health Charity',
     },
   },
   {

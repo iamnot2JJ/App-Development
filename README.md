@@ -155,8 +155,6 @@ src/
 │   │   ├── AuthLayout.vue
 │   │   ├── LoginForm.vue
 │   │   └── RegisterForm.vue
-│   ├── booking/                # 预约系统
-│   │   └── AppointmentBooking.vue
 │   ├── export/                 # 数据导出
 │   │   └── ExportComponent.vue
 │   ├── geo/                    # 地理位置服务
