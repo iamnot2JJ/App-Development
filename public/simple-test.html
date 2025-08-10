@@ -1,178 +1,193 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>简单AI测试</title>
     <style>
-        body { 
-            font-family: Arial, sans-serif; 
-            max-width: 800px; 
-            margin: 0 auto; 
-            padding: 20px; 
-            background-color: #f8f9fa;
-        }
-        .header { 
-            text-align: center; 
-            background: linear-gradient(135deg, #007bff, #0056b3); 
-            color: white; 
-            padding: 30px; 
-            border-radius: 10px; 
-            margin-bottom: 30px; 
-        }
-        .test-box { 
-            margin: 20px 0; 
-            padding: 20px; 
-            border: 2px solid #ddd; 
-            border-radius: 10px; 
-            background: white;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-        .test-box h3 {
-            margin-top: 0;
-            color: #333;
-            border-bottom: 2px solid #007bff;
-            padding-bottom: 10px;
-        }
-        .status-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px 0;
-            border-bottom: 1px solid #eee;
-        }
-        .status-item:last-child {
-            border-bottom: none;
-        }
-        button { 
-            padding: 15px 30px; 
-            background: #007bff; 
-            color: white; 
-            border: none; 
-            border-radius: 8px; 
-            cursor: pointer; 
-            font-size: 16px;
-            font-weight: bold;
-            margin: 10px 5px;
-        }
-        button:hover {
-            background: #0056b3;
-        }
-        #output { 
-            margin-top: 15px; 
-            padding: 15px; 
-            background: #f8f9fa; 
-            border-radius: 8px; 
-            white-space: pre-wrap; 
-            border: 1px solid #ddd;
-            min-height: 100px;
-        }
-        .success { background-color: #d4edda; border-color: #c3e6cb; }
-        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #f8f9fa;
+      }
+      .header {
+        text-align: center;
+        background: linear-gradient(135deg, #007bff, #0056b3);
+        color: white;
+        padding: 30px;
+        border-radius: 10px;
+        margin-bottom: 30px;
+      }
+      .test-box {
+        margin: 20px 0;
+        padding: 20px;
+        border: 2px solid #ddd;
+        border-radius: 10px;
+        background: white;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+      .test-box h3 {
+        margin-top: 0;
+        color: #333;
+        border-bottom: 2px solid #007bff;
+        padding-bottom: 10px;
+      }
+      .status-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 0;
+        border-bottom: 1px solid #eee;
+      }
+      .status-item:last-child {
+        border-bottom: none;
+      }
+      button {
+        padding: 15px 30px;
+        background: #007bff;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 16px;
+        font-weight: bold;
+        margin: 10px 5px;
+      }
+      button:hover {
+        background: #0056b3;
+      }
+      #output {
+        margin-top: 15px;
+        padding: 15px;
+        background: #f8f9fa;
+        border-radius: 8px;
+        white-space: pre-wrap;
+        border: 1px solid #ddd;
+        min-height: 100px;
+      }
+      .success {
+        background-color: #d4edda;
+        border-color: #c3e6cb;
+      }
+      .error {
+        background-color: #f8d7da;
+        border-color: #f5c6cb;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="header">
-        <h1>🔧 AI助手诊断工具</h1>
-        <p>检测和修复AI功能问题</p>
-    </div>
-    
-    <div class="test-box">
-        <h3>📋 基础检查</h3>
-        <div class="status-item">
-            <strong>页面加载:</strong>
-            <span id="page-status" style="font-weight: bold; color: green;">✅ 正常</span>
-        </div>
-        <div class="status-item">
-            <strong>JavaScript:</strong>
-            <span id="js-status" style="font-weight: bold;">🔄 检查中...</span>
-        </div>
-        <div class="status-item">
-            <strong>开发服务器:</strong>
-            <span id="server-status" style="font-weight: bold;">🔄 检查中...</span>
-        </div>
+      <h1>🔧 AI助手诊断工具</h1>
+      <p>检测和修复AI功能问题</p>
     </div>
 
     <div class="test-box">
-        <h3>🧪 功能测试</h3>
-        <button onclick="testBasicFunction()">测试基础功能</button>
-        <button onclick="testAPIConnection()">测试API连接</button>
-        <button onclick="checkEnvironment()">检查环境变量</button>
-        <button onclick="testGeminiDirect()">直接测试Gemini</button>
-        <div id="output">点击上面的按钮开始测试...</div>
+      <h3>📋 基础检查</h3>
+      <div class="status-item">
+        <strong>页面加载:</strong>
+        <span id="page-status" style="font-weight: bold; color: green">✅ 正常</span>
+      </div>
+      <div class="status-item">
+        <strong>JavaScript:</strong>
+        <span id="js-status" style="font-weight: bold">🔄 检查中...</span>
+      </div>
+      <div class="status-item">
+        <strong>开发服务器:</strong>
+        <span id="server-status" style="font-weight: bold">🔄 检查中...</span>
+      </div>
     </div>
 
     <div class="test-box">
-        <h3>🚀 快速修复</h3>
-        <button onclick="goToAIChat()">打开AI聊天页面</button>
-        <button onclick="refreshPage()">刷新页面</button>
-        <button onclick="showConsole()">查看控制台</button>
+      <h3>🧪 功能测试</h3>
+      <button onclick="testBasicFunction()">测试基础功能</button>
+      <button onclick="testAPIConnection()">测试API连接</button>
+      <button onclick="checkEnvironment()">检查环境变量</button>
+      <button onclick="testGeminiDirect()">直接测试Gemini</button>
+      <div id="output">点击上面的按钮开始测试...</div>
+    </div>
+
+    <div class="test-box">
+      <h3>🚀 快速修复</h3>
+      <button onclick="goToAIChat()">打开AI聊天页面</button>
+      <button onclick="refreshPage()">刷新页面</button>
+      <button onclick="showConsole()">查看控制台</button>
     </div>
 
     <script>
-        console.log('🚀 简单测试页面加载...');
-        
-        // 立即更新JavaScript状态
-        document.getElementById('js-status').textContent = '✅ 正常';
-        document.getElementById('js-status').style.color = 'green';
-        
-        // 检查服务器状态
-        document.getElementById('server-status').textContent = '✅ 运行中 (端口5175)';
-        document.getElementById('server-status').style.color = 'green';
-        
-        function testBasicFunction() {
-            const output = document.getElementById('output');
-            output.textContent = '✅ 基础功能测试成功！\n\n- HTML加载正常\n- CSS样式正常\n- JavaScript执行正常\n- 按钮响应正常\n\n时间: ' + new Date().toLocaleString();
-            output.className = 'success';
-            console.log('✅ 基础功能测试完成');
-        }
-        
-        function testAPIConnection() {
-            const output = document.getElementById('output');
-            output.textContent = '🔄 测试API连接...\n\n检查项目:\n- 网络连接\n- API密钥\n- Gemini服务';
-            
-            // 模拟API测试
-            setTimeout(() => {
-                output.textContent = '⚠️ API连接测试结果:\n\n问题发现:\n- Gemini包可能未正确加载\n- 模块导入存在问题\n- 需要检查依赖安装\n\n建议:\n1. 检查node_modules\n2. 重新安装依赖\n3. 检查网络连接\n\n时间: ' + new Date().toLocaleString();
-                output.className = 'error';
-            }, 2000);
-        }
-        
-        function checkEnvironment() {
-            const output = document.getElementById('output');
-            output.textContent = '🔄 检查环境配置...\n\n检查项目:\n- .env文件\n- API密钥\n- 环境变量';
-            
-            setTimeout(() => {
-                output.textContent = '📋 环境检查结果:\n\n发现的问题:\n- ES模块加载失败\n- import.meta.env 无法访问\n- 可能是Vite配置问题\n\n解决方案:\n1. 重启开发服务器\n2. 检查Vite配置\n3. 清除缓存\n\n时间: ' + new Date().toLocaleString();
-                output.className = 'error';
-            }, 1500);
-        }
-        
-        function testGeminiDirect() {
-            const output = document.getElementById('output');
-            output.textContent = '🔄 尝试直接测试Gemini...\n\n这个测试会绕过模块系统';
-            
-            setTimeout(() => {
-                output.textContent = '❌ 直接Gemini测试失败\n\n原因:\n- @google/generative-ai 包需要ES模块支持\n- 当前环境不支持import语句\n- 需要在Vue应用内测试\n\n下一步:\n1. 回到AI聊天页面测试\n2. 检查控制台错误\n3. 修复模块加载问题\n\n时间: ' + new Date().toLocaleString();
-                output.className = 'error';
-            }, 2000);
-        }
-        
-        function goToAIChat() {
-            window.location.href = '/ai-chat';
-        }
-        
-        function refreshPage() {
-            window.location.reload();
-        }
-        
-        function showConsole() {
-            const output = document.getElementById('output');
-            output.textContent = '💡 如何查看控制台:\n\n1. 按 F12 键\n2. 或右键点击页面 → 检查\n3. 点击 Console 标签\n4. 查看错误信息和日志\n\n在控制台中查找:\n- 红色错误信息\n- import 相关错误\n- 模块加载失败\n- 网络请求错误';
-            output.className = '';
-        }
-        
-        console.log('✅ 所有函数已加载');
+      console.log('🚀 简单测试页面加载...')
+
+      // 立即更新JavaScript状态
+      document.getElementById('js-status').textContent = '✅ 正常'
+      document.getElementById('js-status').style.color = 'green'
+
+      // 检查服务器状态
+      document.getElementById('server-status').textContent = '✅ 运行中 (端口5175)'
+      document.getElementById('server-status').style.color = 'green'
+
+      function testBasicFunction() {
+        const output = document.getElementById('output')
+        output.textContent =
+          '✅ 基础功能测试成功！\n\n- HTML加载正常\n- CSS样式正常\n- JavaScript执行正常\n- 按钮响应正常\n\n时间: ' +
+          new Date().toLocaleString()
+        output.className = 'success'
+        console.log('✅ 基础功能测试完成')
+      }
+
+      function testAPIConnection() {
+        const output = document.getElementById('output')
+        output.textContent = '🔄 测试API连接...\n\n检查项目:\n- 网络连接\n- API密钥\n- Gemini服务'
+
+        // 模拟API测试
+        setTimeout(() => {
+          output.textContent =
+            '⚠️ API连接测试结果:\n\n问题发现:\n- Gemini包可能未正确加载\n- 模块导入存在问题\n- 需要检查依赖安装\n\n建议:\n1. 检查node_modules\n2. 重新安装依赖\n3. 检查网络连接\n\n时间: ' +
+            new Date().toLocaleString()
+          output.className = 'error'
+        }, 2000)
+      }
+
+      function checkEnvironment() {
+        const output = document.getElementById('output')
+        output.textContent = '🔄 检查环境配置...\n\n检查项目:\n- .env文件\n- API密钥\n- 环境变量'
+
+        setTimeout(() => {
+          output.textContent =
+            '📋 环境检查结果:\n\n发现的问题:\n- ES模块加载失败\n- import.meta.env 无法访问\n- 可能是Vite配置问题\n\n解决方案:\n1. 重启开发服务器\n2. 检查Vite配置\n3. 清除缓存\n\n时间: ' +
+            new Date().toLocaleString()
+          output.className = 'error'
+        }, 1500)
+      }
+
+      function testGeminiDirect() {
+        const output = document.getElementById('output')
+        output.textContent = '🔄 尝试直接测试Gemini...\n\n这个测试会绕过模块系统'
+
+        setTimeout(() => {
+          output.textContent =
+            '❌ 直接Gemini测试失败\n\n原因:\n- @google/generative-ai 包需要ES模块支持\n- 当前环境不支持import语句\n- 需要在Vue应用内测试\n\n下一步:\n1. 回到AI聊天页面测试\n2. 检查控制台错误\n3. 修复模块加载问题\n\n时间: ' +
+            new Date().toLocaleString()
+          output.className = 'error'
+        }, 2000)
+      }
+
+      function goToAIChat() {
+        window.location.href = '/ai-chat'
+      }
+
+      function refreshPage() {
+        window.location.reload()
+      }
+
+      function showConsole() {
+        const output = document.getElementById('output')
+        output.textContent =
+          '💡 如何查看控制台:\n\n1. 按 F12 键\n2. 或右键点击页面 → 检查\n3. 点击 Console 标签\n4. 查看错误信息和日志\n\n在控制台中查找:\n- 红色错误信息\n- import 相关错误\n- 模块加载失败\n- 网络请求错误'
+        output.className = ''
+      }
+
+      console.log('✅ 所有函数已加载')
     </script>
-</body>
+  </body>
 </html>

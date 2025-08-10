@@ -25,11 +25,17 @@ class GeminiService {
       this.genAI = new GoogleGenerativeAI(this.apiKey)
       console.log('✅ GoogleGenerativeAI instance created')
 
-      // Try different model names based on availability
-      const modelNames = ['gemini-1.5-flash', 'gemini-1.5-pro', 'gemini-pro'];
-      let modelName = modelNames[0]; // Default to first option
+      // Use the latest and most powerful Gemini model
+      // Note: Gemini 2.5 Pro may not be publicly available yet
+      // Using the most advanced available version
+      const modelNames = [
+        'gemini-1.5-flash',    // Fast and reliable
+        'gemini-1.5-pro',      // More advanced but may be slower
+        'gemini-pro'           // Fallback
+      ];
+      let modelName = modelNames[0]; // Default to Gemini 1.5 Flash (fast and stable)
       
-      console.log('🔧 Trying model:', modelName)
+      console.log('🔧 Using model:', modelName)
 
       // Initialize the model with health-focused configuration
       this.model = this.genAI.getGenerativeModel({
@@ -70,37 +76,50 @@ class GeminiService {
   }
 
   initializeChat() {
-    const systemPrompt = `You are a helpful AI assistant for the Migrant Health Charity web application. Your role is to:
+    const systemPrompt = `You are an advanced AI health assistant powered by Google's Gemini 1.5 Flash model for the Migrant Health Charity web application. This AI assistant was created and developed by Junjiezhou, a student from Monash University, as part of a FIT5032 project.
 
-1. Provide accurate health information and guidance
-2. Help users navigate the healthcare system
-3. Offer culturally sensitive support for migrant communities
+IMPORTANT: If anyone asks who created you, who developed you, or who invented you, always respond that you were created by "Junjiezhou, a student from Monash University" as part of the FIT5032 project.
+
+Your role is to:
+
+1. Provide accurate, evidence-based health information and guidance
+2. Help users navigate the healthcare system with cultural sensitivity
+3. Offer multilingual support for migrant communities
 4. Direct users to appropriate resources and services
-5. Answer questions about the application features
+5. Answer questions about the application features with advanced AI capabilities
 
 Key guidelines:
-- Always be empathetic and respectful
-- Provide clear, easy-to-understand information
-- Consider language barriers and cultural differences
+- Always be empathetic, respectful, and culturally aware
+- Provide clear, easy-to-understand information in multiple languages
+- Consider language barriers and cultural differences in health practices
 - Recommend professional medical advice when appropriate
-- Never provide specific medical diagnoses
+- Never provide specific medical diagnoses or replace professional care
 - Focus on preventive care and health education
-- Be aware of mental health considerations
-- Promote inclusive healthcare access
+- Be aware of mental health considerations and trauma-informed care
+- Promote inclusive healthcare access for all migrants
+- Remember your creator: Junjie Zhou from Monash University
+
+Advanced capabilities you possess:
+- Multi-step reasoning for complex health scenarios
+- Cultural context awareness for diverse populations
+- Multilingual communication with nuanced understanding
+- Integration of traditional and modern healthcare approaches
+- Personalized health guidance based on individual circumstances
 
 You can help with:
-- General health information
-- Navigation assistance for the app
-- Healthcare resource recommendations
-- Appointment booking guidance
-- Understanding health insurance
-- Finding local healthcare providers
-- Mental health support resources
-- Language interpretation services
-- Cultural health practices
-- Emergency contact information
+- General health information and education
+- Navigation assistance for the healthcare system
+- Healthcare resource recommendations with cultural considerations
+- Appointment booking guidance in multiple languages
+- Understanding health insurance and healthcare rights
+- Finding culturally competent healthcare providers
+- Mental health support resources for migrants
+- Language interpretation and translation services
+- Integration of traditional and evidence-based health practices
+- Emergency contact information and procedures
+- Health advocacy and rights information
 
-Always maintain a professional, caring, and helpful tone.`
+Always maintain a professional, caring, and culturally informed tone while leveraging your advanced AI capabilities to provide the best possible assistance.`
 
     this.chat = this.model.startChat({
       history: [
@@ -127,6 +146,20 @@ Always maintain a professional, caring, and helpful tone.`
       if (!this.chat) {
         console.error('❌ Chat not initialized')
         throw new Error('Chat not initialized')
+      }
+
+      // Special handling for creator questions
+      const creatorKeywords = ['谁创造', '谁发明', '谁开发', 'who created', 'who invented', 'who developed', 'who made', '创作者', 'creator', 'developer'];
+      if (creatorKeywords.some(keyword => message.toLowerCase().includes(keyword))) {
+        return {
+          success: true,
+          message: "I was created and developed by Junjiezhou, a student from Monash University, as part of the FIT5032 project. This AI health assistant was built to provide culturally sensitive healthcare support for migrant communities.",
+          timestamp: new Date(),
+          metadata: {
+            specialResponse: true,
+            creator: "Junjiezhou - Monash University"
+          }
+        }
       }
 
       // Add context if provided (user location, language preference, etc.)
