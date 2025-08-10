@@ -1,12 +1,12 @@
 <template>
   <div class="about-view">
     <!-- Hero Section -->
-    <section class="hero-section bg-gradient py-5">
+    <section class="hero-section bg-white py-5 border-bottom">
       <div class="container">
         <div class="row align-items-center">
           <div class="col-md-6">
-            <h1 class="display-4 fw-bold text-white mb-4">About MigrantCare</h1>
-            <p class="lead text-white mb-4">
+            <h1 class="display-4 fw-bold text-primary mb-4">About MigrantCare</h1>
+            <p class="lead text-secondary mb-4">
               Empowering migrant communities through accessible health resources, support services,
               and community connections across Australia.
             </p>
@@ -17,19 +17,19 @@
               <div class="row text-center">
                 <div class="col-6 mb-3">
                   <h2 class="text-primary mb-0">{{ stats.yearsActive }}</h2>
-                  <small class="text-muted">Years Active</small>
+                  <small class="text-secondary">Years Active</small>
                 </div>
                 <div class="col-6 mb-3">
                   <h2 class="text-primary mb-0">{{ stats.communitiesServed }}</h2>
-                  <small class="text-muted">Communities Served</small>
+                  <small class="text-secondary">Communities Served</small>
                 </div>
                 <div class="col-6">
                   <h2 class="text-primary mb-0">{{ stats.volunteersActive }}</h2>
-                  <small class="text-muted">Active Volunteers</small>
+                  <small class="text-secondary">Active Volunteers</small>
                 </div>
                 <div class="col-6">
                   <h2 class="text-primary mb-0">{{ stats.resourcesProvided }}</h2>
-                  <small class="text-muted">Resources Available</small>
+                  <small class="text-secondary">Resources Available</small>
                 </div>
               </div>
             </div>
@@ -48,7 +48,7 @@
               MigrantCare is dedicated to breaking down barriers and creating pathways to essential
               health and wellness services for migrant communities across Australia.
             </p>
-            <p class="text-muted">
+            <p class="text-secondary">
               We believe that everyone deserves access to quality healthcare, mental health support,
               and legal assistance, regardless of their background or immigration status. Through
               technology, community partnerships, and culturally sensitive approaches, we're
@@ -60,11 +60,11 @@
     </section>
 
     <!-- Values Section -->
-    <section class="py-5 bg-light">
+    <section class="py-5 bg-white">
       <div class="container">
         <div class="text-center mb-5">
           <h2 class="display-6 fw-bold">Our Values</h2>
-          <p class="lead text-muted">The principles that guide our work</p>
+          <p class="lead text-secondary">The principles that guide our work</p>
         </div>
 
         <div class="row g-4">
@@ -75,7 +75,7 @@
                   <i :class="value.icon" class="display-4 text-primary"></i>
                 </div>
                 <h5 class="card-title">{{ value.title }}</h5>
-                <p class="card-text text-muted">{{ value.description }}</p>
+                <p class="card-text text-secondary">{{ value.description }}</p>
               </div>
             </div>
           </div>
@@ -88,7 +88,7 @@
       <div class="container">
         <div class="text-center mb-5">
           <h2 class="display-6 fw-bold">Meet Our Team</h2>
-          <p class="lead text-muted">Dedicated professionals working for community wellness</p>
+          <p class="lead text-secondary">Dedicated professionals working for community wellness</p>
         </div>
 
         <div class="row g-4">
@@ -102,11 +102,11 @@
                 </div>
                 <h5 class="card-title">{{ member.name }}</h5>
                 <p class="text-primary mb-2">{{ member.role }}</p>
-                <p class="card-text text-muted small">{{ member.bio }}</p>
+                <p class="card-text text-secondary small">{{ member.bio }}</p>
                 <div class="social-links">
-                  <a href="#" class="text-muted me-2"><i class="fab fa-linkedin"></i></a>
-                  <a href="#" class="text-muted me-2"><i class="fab fa-twitter"></i></a>
-                  <a href="#" class="text-muted"><i class="fas fa-envelope"></i></a>
+                  <a href="#" class="text-secondary me-2"><i class="fab fa-linkedin"></i></a>
+                  <a href="#" class="text-secondary me-2"><i class="fab fa-twitter"></i></a>
+                  <a href="#" class="text-secondary"><i class="fas fa-envelope"></i></a>
                 </div>
               </div>
             </div>
@@ -116,11 +116,11 @@
     </section>
 
     <!-- Services Section -->
-    <section class="py-5 bg-light">
+    <section class="py-5 bg-white border-top">
       <div class="container">
         <div class="text-center mb-5">
           <h2 class="display-6 fw-bold">What We Offer</h2>
-          <p class="lead text-muted">Comprehensive support services for migrant communities</p>
+          <p class="lead text-secondary">Comprehensive support services for migrant communities</p>
         </div>
 
         <div class="row g-4">
@@ -130,7 +130,7 @@
                 <i :class="service.icon" class="display-5 text-primary"></i>
               </div>
               <h5>{{ service.title }}</h5>
-              <p class="text-muted small">{{ service.description }}</p>
+              <p class="text-secondary small">{{ service.description }}</p>
             </div>
           </div>
         </div>
@@ -138,12 +138,12 @@
     </section>
 
     <!-- Contact Section -->
-    <section class="py-5 bg-primary text-white">
+    <section class="py-5 bg-white border-top">
       <div class="container">
         <div class="row">
           <div class="col-lg-8 mx-auto text-center">
-            <h2 class="display-6 fw-bold mb-4">Get In Touch</h2>
-            <p class="lead mb-4">
+            <h2 class="display-6 fw-bold mb-4 text-primary">Get In Touch</h2>
+            <p class="lead mb-4 text-secondary">
               Ready to access our services or have questions? We're here to help.
             </p>
 
@@ -405,6 +405,30 @@ export default {
 
 .social-links a:hover {
   color: #2c5aa0 !important;
+}
+
+/* Enhanced text readability */
+.card-title {
+  color: #2c3e50 !important;
+  font-weight: 600;
+}
+
+.card-text {
+  color: #495057 !important;
+  line-height: 1.6;
+}
+
+.display-6 {
+  color: #2c3e50 !important;
+}
+
+.lead {
+  color: #6c757d !important;
+  font-weight: 500;
+}
+
+.text-secondary {
+  color: #6c757d !important;
 }
 
 @media (max-width: 768px) {

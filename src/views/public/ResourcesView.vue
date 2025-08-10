@@ -4,7 +4,7 @@
       <!-- Header -->
       <div class="text-center mb-5">
         <h1 class="display-4 fw-bold">Community Resources</h1>
-        <p class="lead text-muted">
+        <p class="lead text-secondary">
           Comprehensive resources to support migrant communities in Australia
         </p>
       </div>
@@ -47,7 +47,7 @@
             <div class="card-body">
               <div class="d-flex justify-content-between align-items-start mb-2">
                 <span class="badge bg-primary">{{ resource.category }}</span>
-                <small class="text-muted">{{ formatDate(resource.createdAt) }}</small>
+                <small class="text-secondary">{{ formatDate(resource.createdAt) }}</small>
               </div>
 
               <h5 class="card-title">{{ resource.title }}</h5>
@@ -58,7 +58,7 @@
               </div>
 
               <div class="d-flex justify-content-between align-items-center mb-3">
-                <small class="text-muted">By {{ resource.author }}</small>
+                <small class="text-secondary">By {{ resource.author }}</small>
                 <button class="btn btn-sm btn-outline-primary" @click="toggleExpanded(resource.id)">
                   {{ expandedResources.includes(resource.id) ? 'Show Less' : 'Read More' }}
                 </button>
@@ -79,9 +79,9 @@
 
       <!-- No Results -->
       <div v-if="filteredResources.length === 0" class="text-center py-5">
-        <i class="fas fa-search display-1 text-muted mb-3"></i>
+        <i class="fas fa-search display-1 text-secondary mb-3"></i>
         <h3>No resources found</h3>
-        <p class="text-muted">Try adjusting your search criteria or browse all resources.</p>
+        <p class="text-secondary">Try adjusting your search criteria or browse all resources.</p>
         <button class="btn btn-primary" @click="clearFilters">Clear Filters</button>
       </div>
 
@@ -223,7 +223,7 @@ export default {
           (resource) =>
             resource.title.toLowerCase().includes(query) ||
             resource.description.toLowerCase().includes(query) ||
-            resource.content.toLowerCase().includes(query),
+            resource.content.toLowerCase().includes(query)
         )
       }
 
@@ -291,7 +291,7 @@ export default {
           description: authStore.sanitizeInput(newResource.description.trim()),
           content: authStore.sanitizeInput(newResource.content.trim()),
           author: authStore.sanitizeInput(
-            newResource.author.trim() || authStore.user.firstName + ' ' + authStore.user.lastName,
+            newResource.author.trim() || authStore.user.firstName + ' ' + authStore.user.lastName
           ),
         }
 
@@ -370,9 +370,7 @@ export default {
 
 <style scoped>
 .resource-card {
-  transition:
-    transform 0.2s,
-    box-shadow 0.2s;
+  transition: transform 0.2s, box-shadow 0.2s;
 }
 
 .resource-card:hover {
@@ -389,6 +387,30 @@ export default {
 .resource-content {
   color: #6c757d;
   font-size: 0.9rem;
+}
+
+/* Enhanced text readability */
+.card-title {
+  color: #2c3e50 !important;
+  font-weight: 600;
+}
+
+.card-text {
+  color: #495057 !important;
+  line-height: 1.6;
+}
+
+.display-4 {
+  color: #2c3e50 !important;
+}
+
+.lead {
+  color: #6c757d !important;
+  font-weight: 500;
+}
+
+.text-secondary {
+  color: #6c757d !important;
 }
 
 @media (max-width: 768px) {
