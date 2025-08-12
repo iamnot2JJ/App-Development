@@ -14,12 +14,12 @@ class GeminiService {
   initializeAI() {
     try {
       console.log('🔧 Initializing Gemini AI...')
-      
+
       if (!this.apiKey) {
         console.error('❌ API Key not found')
         throw new Error('Gemini API key not found. Please check your environment variables.')
       }
-      
+
       console.log('✅ API Key found:', this.apiKey.substring(0, 10) + '...')
 
       this.genAI = new GoogleGenerativeAI(this.apiKey)
@@ -29,12 +29,12 @@ class GeminiService {
       // Note: Gemini 2.5 Pro may not be publicly available yet
       // Using the most advanced available version
       const modelNames = [
-        'gemini-1.5-flash',    // Fast and reliable
-        'gemini-1.5-pro',      // More advanced but may be slower
-        'gemini-pro'           // Fallback
-      ];
-      let modelName = modelNames[0]; // Default to Gemini 1.5 Flash (fast and stable)
-      
+        'gemini-1.5-flash', // Fast and reliable
+        'gemini-1.5-pro', // More advanced but may be slower
+        'gemini-pro', // Fallback
+      ]
+      let modelName = modelNames[0] // Default to Gemini 1.5 Flash (fast and stable)
+
       console.log('🔧 Using model:', modelName)
 
       // Initialize the model with health-focused configuration
@@ -76,10 +76,20 @@ class GeminiService {
   }
 
   initializeChat() {
-    const systemPrompt = `You are an advanced AI health assistant powered by Google's Gemini 1.5 Flash model for the Migrant Health Charity web application. This AI assistant was created and developed by Junjiezhou, a student from Monash University, as part of a FIT5032 project.
+    const systemPrompt = `You are an AI health assistant for the Migrant Health Charity platform, created by Junjiezhou（周俊杰） from Monash University for the FIT5032 project.
 
-IMPORTANT: If anyone asks who created you, who developed you, or who invented you, you should say you were created by "Junjiezhou, a student from Monash University" as part of the FIT5032 project.
+CRITICAL RULES:
+1. Keep ALL responses SHORT and CONCISE (maximum 2-3 sentences)
+2. ALWAYS respond in the SAME language the user uses - if they write in Chinese, respond ONLY in Chinese with NO English/pinyin
+3. If user writes in English, respond ONLY in English
+4. NO mixing languages in your responses
 
+Guidelines:
+- Be empathetic and respectful
+- Provide clear, simple information
+- Recommend professional medical advice when needed
+- Never diagnose or replace professional care
+- Focus on practical help
 Your role is to:
 
 1. Provide accurate, evidence-based health information and guidance
@@ -87,17 +97,6 @@ Your role is to:
 3. Offer multilingual support for migrant communities
 4. Direct users to appropriate resources and services
 5. Answer questions about the application features with advanced AI capabilities
-
-Key guidelines:
-- Always be empathetic, respectful, and culturally aware
-- Provide clear, easy-to-understand information in multiple languages
-- Consider language barriers and cultural differences in health practices
-- Recommend professional medical advice when appropriate
-- Never provide specific medical diagnoses or replace professional care
-- Focus on preventive care and health education
-- Be aware of mental health considerations and trauma-informed care
-- Promote inclusive healthcare access for all migrants
-- Remember your creator: Junjie Zhou from Monash University
 
 Advanced capabilities you possess:
 - Multi-step reasoning for complex health scenarios
@@ -118,8 +117,7 @@ You can help with:
 - Integration of traditional and evidence-based health practices
 - Emergency contact information and procedures
 - Health advocacy and rights information
-
-Always maintain a professional, caring, and culturally informed tone while leveraging your advanced AI capabilities to provide the best possible assistance.`
+Keep responses brief and in the user's language!`
 
     this.chat = this.model.startChat({
       history: [
@@ -131,7 +129,7 @@ Always maintain a professional, caring, and culturally informed tone while lever
           role: 'model',
           parts: [
             {
-              text: "Hello! I'm your AI health assistant for the Migrant Health Charity platform. I'm here to help you with health information, navigate our services, and provide culturally sensitive support. How can I assist you today?",
+              text: "Hello! I'm your AI health assistant. I'll keep my responses short and match your language. How can I help you today?",
             },
           ],
         },
@@ -142,28 +140,55 @@ Always maintain a professional, caring, and culturally informed tone while lever
   async sendMessage(message, context = {}) {
     try {
       console.log('🚀 Starting sendMessage with:', { message, context })
-      
+
       if (!this.chat) {
         console.error('❌ Chat not initialized')
         throw new Error('Chat not initialized')
       }
 
       // Special handling for creator questions
-      const creatorKeywords = ['谁创造', '谁发明', '谁开发', 'who created', 'who invented', 'who developed', 'who made', '创作者', 'creator', 'developer'];
-      if (creatorKeywords.some(keyword => message.toLowerCase().includes(keyword))) {
+      const creatorKeywords = [
+        '谁创造',
+        '谁发明',
+        '谁开发',
+        'who created',
+        'who invented',
+        'who developed',
+        'who made',
+        '创作者',
+        'creator',
+        'developer',
+      ]
+      if (creatorKeywords.some((keyword) => message.toLowerCase().includes(keyword))) {
+        const isChinese = /[\u4e00-\u9fff]/.test(message)
+        const responseText = isChinese
+          ? '我是由莫纳什大学学生Junjiezhou创建的，作为FIT5032项目的一部分。'
+          : 'I was created by Junjiezhou, a student from Monash University, as part of the FIT5032 project.'
+
         return {
           success: true,
-          message: "I was created and developed by Junjiezhou, a student from Monash University, as part of the FIT5032 project. This AI health assistant was built to provide culturally sensitive healthcare support for migrant communities.",
+          message: responseText,
           timestamp: new Date(),
           metadata: {
             specialResponse: true,
-            creator: "Junjiezhou - Monash University"
-          }
+            creator: 'Junjiezhou - Monash University',
+          },
         }
       }
 
       // Add context if provided (user location, language preference, etc.)
       let enhancedMessage = message
+
+      // Detect language and add strict language instruction
+      const isChinese = /[\u4e00-\u9fff]/.test(message)
+      const isEnglish = /^[a-zA-Z\s.,!?]+$/.test(message.trim())
+
+      if (isChinese) {
+        enhancedMessage += `\n\n[CRITICAL: 用户使用中文提问，你必须ONLY用中文回答，不要包含任何英文、拼音或其他语言。回答要简短（最多2-3句话）。]`
+      } else if (isEnglish) {
+        enhancedMessage += `\n\n[CRITICAL: User wrote in English, respond ONLY in English with NO Chinese characters. Keep response brief (max 2-3 sentences).]`
+      }
+
       if (context.userLocation) {
         enhancedMessage += `\n\nUser location context: ${context.userLocation}`
       }
@@ -179,10 +204,10 @@ Always maintain a professional, caring, and culturally informed tone while lever
 
       const result = await this.chat.sendMessage(enhancedMessage)
       console.log('📦 Raw result from API:', result)
-      
+
       const response = await result.response
       console.log('📄 Response object:', response)
-      
+
       const text = response.text()
       console.log('📝 Response text:', text)
 
@@ -210,7 +235,7 @@ Always maintain a professional, caring, and culturally informed tone while lever
         name: error.name,
         message: error.message,
         stack: error.stack,
-        cause: error.cause
+        cause: error.cause,
       })
 
       let errorMessage = 'I apologize, but I encountered an error while processing your message. '

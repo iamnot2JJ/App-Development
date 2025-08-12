@@ -1,109 +1,126 @@
 <template>
-  <div class="map-container">
-    <div class="map-controls mb-3">
-      <div class="row g-2">
-        <div class="col-md-4">
-          <div class="input-group">
-            <input
-              type="text"
-              class="form-control"
-              placeholder="Search places..."
-              v-model="searchQuery"
-              @keyup.enter="searchPlaces"
-            />
-            <button class="btn btn-primary" @click="searchPlaces">
-              <i class="fas fa-search"></i>
-            </button>
+  <div class="container-fluid py-4">
+    <div class="row">
+      <div class="col-12">
+        <div class="card shadow">
+          <div class="card-header">
+            <h4 class="mb-0">
+              <i class="fas fa-map-marked-alt me-2"></i>
+              Healthcare Services Map
+            </h4>
+            <p class="mb-0 text-muted">Find healthcare services near you</p>
           </div>
-        </div>
-        <div class="col-md-3">
-          <select class="form-select" v-model="selectedCategory" @change="filterMarkers">
-            <option value="">All Services</option>
-            <option value="hospital">Hospitals</option>
-            <option value="clinic">Clinics</option>
-            <option value="pharmacy">Pharmacies</option>
-            <option value="counseling">Counseling Centers</option>
-            <option value="community">Community Centers</option>
-          </select>
-        </div>
-        <div class="col-md-2">
-          <button class="btn btn-success w-100" @click="getCurrentLocation">
-            <i class="fas fa-crosshairs"></i> My Location
-          </button>
-        </div>
-        <div class="col-md-3">
-          <button class="btn btn-info w-100" @click="showDirections = !showDirections">
-            <i class="fas fa-route"></i> Directions
-          </button>
-        </div>
-      </div>
-    </div>
+          <div class="card-body">
+            <div class="map-container">
+              <div class="map-controls mb-3">
+                <div class="row g-2">
+                  <div class="col-md-4">
+                    <div class="input-group">
+                      <input
+                        type="text"
+                        class="form-control"
+                        placeholder="Search places..."
+                        v-model="searchQuery"
+                        @keyup.enter="searchPlaces"
+                      />
+                      <button class="btn btn-primary" @click="searchPlaces">
+                        <i class="fas fa-search"></i>
+                      </button>
+                    </div>
+                  </div>
+                  <div class="col-md-3">
+                    <select class="form-select" v-model="selectedCategory" @change="filterMarkers">
+                      <option value="">All Services</option>
+                      <option value="hospital">Hospitals</option>
+                      <option value="clinic">Clinics</option>
+                      <option value="pharmacy">Pharmacies</option>
+                      <option value="counseling">Counseling Centers</option>
+                      <option value="community">Community Centers</option>
+                    </select>
+                  </div>
+                  <div class="col-md-2">
+                    <button class="btn btn-success w-100" @click="getCurrentLocation">
+                      <i class="fas fa-crosshairs"></i> My Location
+                    </button>
+                  </div>
+                  <div class="col-md-3">
+                    <button class="btn btn-info w-100" @click="showDirections = !showDirections">
+                      <i class="fas fa-route"></i> Directions
+                    </button>
+                  </div>
+                </div>
+              </div>
 
-    <div v-if="showDirections" class="directions-panel card mb-3">
-      <div class="card-header">
-        <h6 class="mb-0">Get Directions</h6>
-      </div>
-      <div class="card-body">
-        <div class="row g-2">
-          <div class="col-md-5">
-            <input
-              type="text"
-              class="form-control"
-              placeholder="From location..."
-              v-model="directionsFrom"
-            />
-          </div>
-          <div class="col-md-5">
-            <input
-              type="text"
-              class="form-control"
-              placeholder="To location..."
-              v-model="directionsTo"
-            />
-          </div>
-          <div class="col-md-2">
-            <button class="btn btn-primary w-100" @click="calculateRoute">
-              <i class="fas fa-directions"></i>
-            </button>
-          </div>
-        </div>
-        <div v-if="routeInfo" class="mt-2">
-          <small class="text-muted">
-            Distance: {{ routeInfo.distance }} | Duration: {{ routeInfo.duration }}
-          </small>
-        </div>
-      </div>
-    </div>
+              <div v-if="showDirections" class="directions-panel card mb-3">
+                <div class="card-header">
+                  <h6 class="mb-0">Get Directions</h6>
+                </div>
+                <div class="card-body">
+                  <div class="row g-2">
+                    <div class="col-md-5">
+                      <input
+                        type="text"
+                        class="form-control"
+                        placeholder="From location..."
+                        v-model="directionsFrom"
+                      />
+                    </div>
+                    <div class="col-md-5">
+                      <input
+                        type="text"
+                        class="form-control"
+                        placeholder="To location..."
+                        v-model="directionsTo"
+                      />
+                    </div>
+                    <div class="col-md-2">
+                      <button class="btn btn-primary w-100" @click="calculateRoute">
+                        <i class="fas fa-directions"></i>
+                      </button>
+                    </div>
+                  </div>
+                  <div v-if="routeInfo" class="mt-2">
+                    <small class="text-muted">
+                      Distance: {{ routeInfo.distance }} | Duration: {{ routeInfo.duration }}
+                    </small>
+                  </div>
+                </div>
+              </div>
 
-    <div id="map" class="map-display"></div>
+              <div id="map" class="map-display"></div>
 
-    <div class="search-results mt-3" v-if="searchResults.length > 0">
-      <h6>Search Results</h6>
-      <div class="list-group">
-        <button
-          v-for="result in searchResults"
-          :key="result.id"
-          class="list-group-item list-group-item-action"
-          @click="selectLocation(result)"
-        >
-          <div class="d-flex justify-content-between align-items-start">
-            <div>
-              <h6 class="mb-1">{{ result.name }}</h6>
-              <p class="mb-1">{{ result.address }}</p>
-              <small class="text-muted">{{ result.category }}</small>
+              <div class="search-results mt-3" v-if="searchResults.length > 0">
+                <h6>Search Results</h6>
+                <div class="list-group">
+                  <button
+                    v-for="result in searchResults"
+                    :key="result.id"
+                    class="list-group-item list-group-item-action"
+                    @click="selectLocation(result)"
+                  >
+                    <div class="d-flex justify-content-between align-items-start">
+                      <div>
+                        <h6 class="mb-1">{{ result.name }}</h6>
+                        <p class="mb-1">{{ result.address }}</p>
+                        <small class="text-muted">{{ result.category }}</small>
+                      </div>
+                      <small class="text-muted">{{ result.distance }}km</small>
+                    </div>
+                  </button>
+                </div>
+              </div>
+
+              <div class="legend mt-3">
+                <h6>Legend</h6>
+                <div class="d-flex flex-wrap gap-3">
+                  <div class="legend-item" v-for="type in markerTypes" :key="type.key">
+                    <i :class="`fas ${type.icon}`" :style="`color: ${type.color}`"></i>
+                    <span class="ms-1">{{ type.label }}</span>
+                  </div>
+                </div>
+              </div>
             </div>
-            <small class="text-muted">{{ result.distance }}km</small>
           </div>
-        </button>
-      </div>
-    </div>
-
-    <div class="legend mt-3">
-      <h6>Legend</h6>
-      <div class="d-flex flex-wrap gap-3">
-        <div class="legend-item" v-for="type in markerTypes" :key="type.key">
-          <i :class="`fas ${type.icon}`" :style="`color: ${type.color}`"></i>
-          <span class="ms-1">{{ type.label }}</span>
         </div>
       </div>
     </div>
@@ -213,12 +230,24 @@ export default {
 
     const initializeMap = () => {
       // Create map centered on Melbourne
-      map.value = L.map('map').setView([-37.8136, 144.9631], 13)
+      map.value = L.map('map', {
+        preferCanvas: true,
+        zoomControl: true,
+        attributionControl: true,
+      }).setView([-37.8136, 144.9631], 13)
 
       // Add OpenStreetMap tiles
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '© OpenStreetMap contributors',
+        maxZoom: 19,
+        tileSize: 256,
+        zoomOffset: 0,
       }).addTo(map.value)
+
+      // Ensure map resizes properly
+      setTimeout(() => {
+        map.value.invalidateSize()
+      }, 100)
 
       // Add markers for healthcare locations
       addHealthcareMarkers()
@@ -472,14 +501,33 @@ export default {
 </script>
 
 <style scoped>
+.card {
+  border: none;
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075) !important;
+}
+
+.card-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-bottom: none;
+}
+
+.card-header h4 {
+  margin: 0;
+}
+
 .map-container {
   width: 100%;
 }
 
 .map-display {
-  height: 500px;
+  height: 70vh;
+  min-height: 500px;
+  max-height: 800px;
+  width: 100%;
   border-radius: 8px;
   border: 1px solid #dee2e6;
+  position: relative;
 }
 
 .legend-item {
@@ -533,7 +581,8 @@ export default {
 
 @media (max-width: 768px) {
   .map-display {
-    height: 400px;
+    height: 60vh;
+    min-height: 400px;
   }
 
   .directions-panel .row {
@@ -543,6 +592,22 @@ export default {
   .directions-panel .col-md-5,
   .directions-panel .col-md-2 {
     width: 100%;
+  }
+
+  .map-controls .row {
+    margin-bottom: 1rem;
+  }
+
+  .map-controls .col-md-4,
+  .map-controls .col-md-3,
+  .map-controls .col-md-2 {
+    margin-bottom: 0.5rem;
+  }
+}
+
+@media (min-width: 1200px) {
+  .map-display {
+    height: 75vh;
   }
 }
 </style>

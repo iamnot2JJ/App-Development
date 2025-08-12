@@ -283,7 +283,12 @@
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title">Send Bulk Email</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            <button
+              type="button"
+              class="btn-close"
+              @click="closeBulkEmailModal"
+              data-bs-dismiss="modal"
+            ></button>
           </div>
           <div class="modal-body">
             <form @submit.prevent="sendBulkEmailAction">
@@ -335,7 +340,14 @@
             </form>
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button
+              type="button"
+              class="btn btn-secondary"
+              @click="closeBulkEmailModal"
+              data-bs-dismiss="modal"
+            >
+              Cancel
+            </button>
             <button type="button" class="btn btn-primary" @click="sendBulkEmailAction">
               <i class="fas fa-paper-plane"></i> Send Email
             </button>
@@ -627,8 +639,71 @@ export default {
     }
 
     const sendBulkEmail = () => {
-      const modal = new bootstrap.Modal(document.getElementById('bulkEmailModal'))
-      modal.show()
+      console.log('Send Bulk Email button clicked') // 调试信息
+
+      // 检查 Bootstrap 可用性
+      console.log('Bootstrap availability:', {
+        bootstrap: typeof bootstrap,
+        Modal: typeof bootstrap !== 'undefined' ? typeof bootstrap.Modal : 'undefined',
+        window: typeof window,
+      })
+
+      try {
+        // 尝试使用 Bootstrap Modal
+        const modalElement = document.getElementById('bulkEmailModal')
+        console.log('Modal element found:', modalElement)
+
+        if (modalElement) {
+          // 检查 Bootstrap 是否可用
+          if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+            console.log('Using Bootstrap Modal')
+            const modal = new bootstrap.Modal(modalElement)
+            modal.show()
+          } else {
+            console.log('Bootstrap not available, using fallback')
+            // 备用方案：直接显示模态框
+            modalElement.style.display = 'block'
+            modalElement.classList.add('show')
+            modalElement.style.backgroundColor = 'rgba(0,0,0,0.5)'
+            document.body.classList.add('modal-open')
+
+            // 添加背景遮罩
+            const backdrop = document.createElement('div')
+            backdrop.className = 'modal-backdrop fade show'
+            backdrop.onclick = closeBulkEmailModal
+            document.body.appendChild(backdrop)
+          }
+        } else {
+          console.error('Modal element not found')
+          alert('邮件发送功能暂时不可用，请稍后重试')
+        }
+      } catch (error) {
+        console.error('Error opening modal:', error)
+        alert('打开邮件发送窗口时出错：' + error.message)
+      }
+    }
+
+    const closeBulkEmailModal = () => {
+      const modalElement = document.getElementById('bulkEmailModal')
+      if (modalElement) {
+        if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+          const modal = bootstrap.Modal.getInstance(modalElement)
+          if (modal) {
+            modal.hide()
+          }
+        } else {
+          // 备用方案：直接隐藏模态框
+          modalElement.style.display = 'none'
+          modalElement.classList.remove('show')
+          document.body.classList.remove('modal-open')
+
+          // 移除背景遮罩
+          const backdrop = document.querySelector('.modal-backdrop')
+          if (backdrop) {
+            backdrop.remove()
+          }
+        }
+      }
     }
 
     const sendBulkEmailAction = async () => {
@@ -661,8 +736,8 @@ export default {
 
         await emailStore.sendBulkEmail(recipients, emailData)
 
-        const modal = bootstrap.Modal.getInstance(document.getElementById('bulkEmailModal'))
-        modal.hide()
+        // 使用新的关闭函数
+        closeBulkEmailModal()
 
         alert(`Bulk email sent to ${recipients.length} recipients successfully!`)
 
@@ -762,6 +837,7 @@ export default {
       exportDashboardData,
       sendBulkEmail,
       sendBulkEmailAction,
+      closeBulkEmailModal,
       generateReport,
       backupData,
       editUser,

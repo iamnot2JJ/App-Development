@@ -13,7 +13,6 @@ import AuthLayout from '../components/auth/AuthLayout.vue'
 // Lazy load components for better performance
 const MapComponent = () => import('../components/geo/MapComponent.vue')
 const ExportComponent = () => import('../components/export/ExportComponent.vue')
-const InteractiveDataTable = () => import('../components/ui/InteractiveDataTable.vue')
 const AIChatPage = () => import('../views/AIChatPage-simple.vue')
 
 const routes = [
@@ -93,9 +92,8 @@ const routes = [
   {
     path: '/data-tables',
     name: 'DataTables',
-    component: InteractiveDataTable,
+    component: DataTablesView,
     meta: {
-      requiresAuth: true,
       title: 'Data Tables - Migrant Health Charity',
     },
   },
