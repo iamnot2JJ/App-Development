@@ -13,8 +13,8 @@
     </button>
 
     <!-- Accessibility panel (sidebar style) -->
-    <div
-      v-if="showToolbar"
+    <div 
+      v-if="showToolbar" 
       class="accessibility-panel"
       role="dialog"
       aria-label="Accessibility Settings"
@@ -75,7 +75,7 @@
                 step="0.1"
                 @input="applyFontSize"
                 aria-label="Font size slider"
-              />
+              >
               <button
                 class="btn-sm"
                 @click="increaseFontSize"
@@ -97,9 +97,7 @@
               class="btn-accessibility"
               :class="{ active: screenReaderMode }"
               @click="toggleScreenReader"
-              :aria-label="
-                screenReaderMode ? 'Disable screen reader mode' : 'Enable screen reader mode'
-              "
+              :aria-label="screenReaderMode ? 'Disable screen reader mode' : 'Enable screen reader mode'"
               :aria-pressed="screenReaderMode"
             >
               <i class="fas fa-volume-up me-2"></i>
@@ -115,9 +113,7 @@
               class="btn-accessibility"
               :class="{ active: keyboardNavigation }"
               @click="toggleKeyboardNavigation"
-              :aria-label="
-                keyboardNavigation ? 'Disable keyboard navigation' : 'Enable keyboard navigation'
-              "
+              :aria-label="keyboardNavigation ? 'Disable keyboard navigation' : 'Enable keyboard navigation'"
               :aria-pressed="keyboardNavigation"
             >
               <i class="fas fa-keyboard me-2"></i>
@@ -144,8 +140,8 @@
     </div>
 
     <!-- Backdrop -->
-    <div
-      v-if="showToolbar"
+    <div 
+      v-if="showToolbar" 
       class="accessibility-backdrop"
       @click="showToolbar = false"
       aria-hidden="true"
@@ -155,17 +151,15 @@
     <a href="#main-content" class="skip-link" @click="skipToContent"> Skip to main content </a>
 
     <!-- Focus indicator -->
-    <div class="focus-indicator" v-if="keyboardNavigation" ref="focusIndicator"></div>
+    <div class="focus-indicator" v-if="keyboardNavigation"></div>
 
     <!-- Screen reader announcements -->
     <div class="sr-only" aria-live="polite" aria-atomic="true" ref="announcements">
       {{ currentAnnouncement }}
     </div>
   </div>
-</template>
-
-<script>
-import { ref, onMounted, onUnmounted, nextTick } from 'vue'
+</template><script>
+import { ref, onMounted, onUnmounted, computed, watch } from 'vue'
 
 export default {
   name: 'AccessibilityToolbar',
@@ -177,97 +171,84 @@ export default {
     const keyboardNavigation = ref(false)
     const currentAnnouncement = ref('')
     const announcements = ref(null)
-    const focusIndicator = ref(null)
+
+    const accessibilityClasses = computed(() => ({
+      'high-contrast': highContrast.value,
+      'screen-reader-mode': screenReaderMode.value,
+      'keyboard-navigation': keyboardNavigation.value,
+    }))
 
     // Load saved settings
     const loadSettings = () => {
-      try {
-        const saved = localStorage.getItem('accessibilitySettings')
-        if (saved) {
-          const settings = JSON.parse(saved)
-          highContrast.value = settings.highContrast || false
-          fontSize.value = settings.fontSize || 1
-          screenReaderMode.value = settings.screenReaderMode || false
-          keyboardNavigation.value = settings.keyboardNavigation || false
-
-          // Apply high contrast immediately if enabled
-          if (highContrast.value) {
-            applyHighContrast()
-          }
+      const saved = localStorage.getItem('accessibilitySettings')
+      if (saved) {
+        const settings = JSON.parse(saved)
+        highContrast.value = settings.highContrast || false
+        fontSize.value = settings.fontSize || 1
+        screenReaderMode.value = settings.screenReaderMode || false
+        keyboardNavigation.value = settings.keyboardNavigation || false
+        
+        // Apply high contrast immediately if enabled
+        if (highContrast.value) {
+          const elementsToUpdate = [document.documentElement, document.body]
+          elementsToUpdate.forEach(element => {
+            element.classList.add('high-contrast-mode')
+          })
+          const sections = document.querySelectorAll('main, section, header, footer, nav')
+          sections.forEach(section => {
+            section.classList.add('high-contrast-mode')
+          })
         }
-        applyFontSize()
-      } catch (error) {
-        console.error('Error loading accessibility settings:', error)
       }
+      applyFontSize()
     }
 
     // Save settings
     const saveSettings = () => {
-      try {
-        const settings = {
-          highContrast: highContrast.value,
-          fontSize: fontSize.value,
-          screenReaderMode: screenReaderMode.value,
-          keyboardNavigation: keyboardNavigation.value,
-        }
-        localStorage.setItem('accessibilitySettings', JSON.stringify(settings))
-      } catch (error) {
-        console.error('Error saving accessibility settings:', error)
+      const settings = {
+        highContrast: highContrast.value,
+        fontSize: fontSize.value,
+        screenReaderMode: screenReaderMode.value,
+        keyboardNavigation: keyboardNavigation.value,
       }
-    }
-
-    // Announce changes for screen readers
-    const announceChange = (message) => {
-      currentAnnouncement.value = message
-      setTimeout(() => {
-        currentAnnouncement.value = ''
-      }, 1000)
-    }
-
-    // High contrast functions
-    const applyHighContrast = () => {
-      const elementsToUpdate = [document.documentElement, document.body]
-      elementsToUpdate.forEach((element) => {
-        element.classList.add('high-contrast-mode')
-      })
-      const sections = document.querySelectorAll('main, section, header, footer, nav')
-      sections.forEach((section) => {
-        section.classList.add('high-contrast-mode')
-      })
-    }
-
-    const removeHighContrast = () => {
-      const elementsToUpdate = [document.documentElement, document.body]
-      elementsToUpdate.forEach((element) => {
-        element.classList.remove('high-contrast-mode')
-      })
-      const sections = document.querySelectorAll('main, section, header, footer, nav')
-      sections.forEach((section) => {
-        section.classList.remove('high-contrast-mode')
-      })
+      localStorage.setItem('accessibilitySettings', JSON.stringify(settings))
     }
 
     const toggleHighContrast = () => {
       highContrast.value = !highContrast.value
       console.log('High contrast toggled:', highContrast.value)
-
-      if (highContrast.value) {
-        applyHighContrast()
-      } else {
-        removeHighContrast()
-      }
-
+      
+      // Apply high contrast class to document elements
+      const elementsToUpdate = [document.documentElement, document.body]
+      elementsToUpdate.forEach(element => {
+        if (highContrast.value) {
+          element.classList.add('high-contrast-mode')
+        } else {
+          element.classList.remove('high-contrast-mode')
+        }
+      })
+      
+      // Also add to all major sections
+      const sections = document.querySelectorAll('main, section, header, footer, nav')
+      sections.forEach(section => {
+        if (highContrast.value) {
+          section.classList.add('high-contrast-mode')
+        } else {
+          section.classList.remove('high-contrast-mode')
+        }
+      })
+      
       announceChange(`High contrast ${highContrast.value ? 'enabled' : 'disabled'}`)
       saveSettings()
     }
 
-    // Font size functions
     const increaseFontSize = () => {
       if (fontSize.value < 1.5) {
         fontSize.value = Math.min(1.5, Math.round((fontSize.value + 0.1) * 10) / 10)
         applyFontSize()
         announceChange(`Font size increased to ${Math.round(fontSize.value * 100)}%`)
         saveSettings()
+        console.log('Font size increased to:', fontSize.value)
       }
     }
 
@@ -277,38 +258,21 @@ export default {
         applyFontSize()
         announceChange(`Font size decreased to ${Math.round(fontSize.value * 100)}%`)
         saveSettings()
+        console.log('Font size decreased to:', fontSize.value)
       }
     }
 
     const applyFontSize = () => {
       console.log('Applying font size:', fontSize.value)
       document.documentElement.style.fontSize = `${fontSize.value}rem`
+      // Also apply to body for better compatibility
       document.body.style.fontSize = `${fontSize.value}rem`
-      saveSettings()
-    }
-
-    // Screen reader functions
-    const enableScreenReaderFeatures = () => {
-      // Add more descriptive labels
-      document.body.setAttribute('aria-label', 'Main application content')
-
-      // Enhance form labels
-      const inputs = document.querySelectorAll('input, select, textarea')
-      inputs.forEach((input) => {
-        if (!input.getAttribute('aria-label') && !input.getAttribute('aria-labelledby')) {
-          const label = input.closest('label') || document.querySelector(`label[for="${input.id}"]`)
-          if (label) {
-            input.setAttribute(
-              'aria-labelledby',
-              label.id || 'label-' + Math.random().toString(36).substr(2, 9)
-            )
-          }
-        }
-      })
-    }
-
-    const disableScreenReaderFeatures = () => {
-      document.body.removeAttribute('aria-label')
+      
+      // Trigger a visual update
+      document.body.classList.add('font-size-updated')
+      setTimeout(() => {
+        document.body.classList.remove('font-size-updated')
+      }, 100)
     }
 
     const toggleScreenReader = () => {
@@ -323,72 +287,11 @@ export default {
       saveSettings()
     }
 
-    // Keyboard navigation functions
-    const enableKeyboardNavigation = () => {
-      document.addEventListener('keydown', handleTabNavigation)
-      document.addEventListener('focusin', updateFocusIndicator)
-      document.addEventListener('focusout', hideFocusIndicator)
-
-      // Add focus styles
-      const style = document.createElement('style')
-      style.id = 'keyboard-nav-styles'
-      style.textContent = `
-        *:focus {
-          outline: 3px solid #007bff !important;
-          outline-offset: 2px !important;
-          box-shadow: 0 0 0 5px rgba(0, 123, 255, 0.25) !important;
-        }
-
-        .focus-indicator {
-          position: absolute;
-          pointer-events: none;
-          z-index: 9999;
-          border: 3px solid #007bff;
-          background: rgba(0, 123, 255, 0.1);
-          border-radius: 4px;
-          transition: all 0.1s ease;
-        }
-      `
-      document.head.appendChild(style)
-    }
-
-    const disableKeyboardNavigation = () => {
-      document.removeEventListener('keydown', handleTabNavigation)
-      document.removeEventListener('focusin', updateFocusIndicator)
-      document.removeEventListener('focusout', hideFocusIndicator)
-
-      const style = document.getElementById('keyboard-nav-styles')
-      if (style) {
-        style.remove()
-      }
-    }
-
-    const updateFocusIndicator = (event) => {
-      if (focusIndicator.value && event.target) {
-        const rect = event.target.getBoundingClientRect()
-        focusIndicator.value.style.left = rect.left + 'px'
-        focusIndicator.value.style.top = rect.top + 'px'
-        focusIndicator.value.style.width = rect.width + 'px'
-        focusIndicator.value.style.height = rect.height + 'px'
-        focusIndicator.value.style.display = 'block'
-      }
-    }
-
-    const hideFocusIndicator = () => {
-      if (focusIndicator.value) {
-        focusIndicator.value.style.display = 'none'
-      }
-    }
-
-    const handleTabNavigation = (event) => {
-      if (event.key === 'Tab') {
-        updateFocusIndicator(event)
-      }
-    }
-
     const toggleKeyboardNavigation = () => {
       keyboardNavigation.value = !keyboardNavigation.value
-      announceChange(`Keyboard navigation ${keyboardNavigation.value ? 'enabled' : 'disabled'}`)
+      announceChange(
+        `Keyboard navigation highlights ${keyboardNavigation.value ? 'enabled' : 'disabled'}`
+      )
 
       if (keyboardNavigation.value) {
         enableKeyboardNavigation()
@@ -398,7 +301,6 @@ export default {
       saveSettings()
     }
 
-    // Reset function
     const resetAccessibility = () => {
       highContrast.value = false
       fontSize.value = 1
@@ -406,26 +308,204 @@ export default {
       keyboardNavigation.value = false
 
       // Apply resets
-      removeHighContrast()
       applyFontSize()
       disableScreenReaderFeatures()
       disableKeyboardNavigation()
+
+      // Reset document styles
+      document.documentElement.style.fontSize = '1rem'
+      document.body.style.fontSize = '1rem'
+      
+      // Remove high contrast classes
+      const elementsToReset = [document.documentElement, document.body]
+      elementsToReset.forEach(element => {
+        element.classList.remove('high-contrast-mode')
+      })
+      
+      const sections = document.querySelectorAll('main, section, header, footer, nav')
+      sections.forEach(section => {
+        section.classList.remove('high-contrast-mode')
+      })
 
       announceChange('All accessibility settings have been reset')
       saveSettings()
     }
 
-    // Skip to content
     const skipToContent = (event) => {
       event.preventDefault()
       const mainContent = document.getElementById('main-content') || document.querySelector('main')
       if (mainContent) {
         mainContent.focus()
         mainContent.scrollIntoView()
+        announceChange('Skipped to main content')
       }
     }
 
-    // Global keyboard shortcuts
+    const announceChange = (message) => {
+      currentAnnouncement.value = message
+      setTimeout(() => {
+        currentAnnouncement.value = ''
+      }, 1000)
+    }
+
+    const enableScreenReaderFeatures = () => {
+      // Add additional ARIA labels and descriptions
+      document.querySelectorAll('img:not([alt])').forEach((img) => {
+        img.setAttribute('alt', 'Image')
+      })
+
+      // Announce page navigation
+      const observer = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+          if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
+            const newHeading = Array.from(mutation.addedNodes).find(
+              (node) => node.nodeType === 1 && /^H[1-6]$/.test(node.tagName)
+            )
+            if (newHeading) {
+              announceChange(`New section: ${newHeading.textContent}`)
+            }
+          }
+        })
+      })
+
+      observer.observe(document.body, { childList: true, subtree: true })
+    }
+
+    const disableScreenReaderFeatures = () => {
+      // Remove added ARIA labels if needed
+    }
+
+    const enableKeyboardNavigation = () => {
+      // Add focus styles for better keyboard navigation
+      const style = document.createElement('style')
+      style.id = 'keyboard-nav-styles'
+      style.textContent = `
+        .keyboard-navigation *:focus {
+          outline: 3px solid #007bff !important;
+          outline-offset: 2px !important;
+          box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25) !important;
+        }
+
+        .keyboard-navigation button:focus,
+        .keyboard-navigation input:focus,
+        .keyboard-navigation select:focus,
+        .keyboard-navigation textarea:focus,
+        .keyboard-navigation a:focus {
+          background-color: rgba(0, 123, 255, 0.1) !important;
+        }
+      `
+      document.head.appendChild(style)
+
+      // Add keyboard event listeners
+      document.addEventListener('keydown', handleKeyboardNavigation)
+    }
+
+    const disableKeyboardNavigation = () => {
+      const style = document.getElementById('keyboard-nav-styles')
+      if (style) {
+        style.remove()
+      }
+      document.removeEventListener('keydown', handleKeyboardNavigation)
+    }
+
+    const handleKeyboardNavigation = (event) => {
+      // Tab navigation enhancements
+      if (event.key === 'Tab') {
+        announceChange('Navigating with keyboard')
+      }
+
+      // Escape key to close modals/dropdowns
+      if (event.key === 'Escape') {
+        const activeModal = document.querySelector('.modal.show')
+        if (activeModal) {
+          const closeBtn = activeModal.querySelector('[data-bs-dismiss="modal"]')
+          if (closeBtn) {
+            closeBtn.click()
+            announceChange('Modal closed')
+          }
+        }
+      }
+
+      // Arrow key navigation for lists and tables
+      if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(event.key)) {
+        const focusedElement = document.activeElement
+        if (focusedElement && focusedElement.closest('.list-group, table')) {
+          handleArrowNavigation(event, focusedElement)
+        }
+      }
+    }
+
+    const handleArrowNavigation = (event, element) => {
+      const container = element.closest('.list-group, table')
+      const focusableElements = container.querySelectorAll(
+        'button, a, input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      )
+      const currentIndex = Array.from(focusableElements).indexOf(element)
+
+      let nextIndex = currentIndex
+
+      switch (event.key) {
+        case 'ArrowDown':
+          nextIndex = Math.min(focusableElements.length - 1, currentIndex + 1)
+          break
+        case 'ArrowUp':
+          nextIndex = Math.max(0, currentIndex - 1)
+          break
+        case 'ArrowRight':
+          if (container.tagName === 'TABLE') {
+            const nextCell = element
+              .closest('td, th')
+              ?.nextElementSibling?.querySelector(
+                'button, a, input, select, textarea, [tabindex]:not([tabindex="-1"])'
+              )
+            if (nextCell) {
+              nextCell.focus()
+              event.preventDefault()
+              return
+            }
+          }
+          break
+        case 'ArrowLeft':
+          if (container.tagName === 'TABLE') {
+            const prevCell = element
+              .closest('td, th')
+              ?.previousElementSibling?.querySelector(
+                'button, a, input, select, textarea, [tabindex]:not([tabindex="-1"])'
+              )
+            if (prevCell) {
+              prevCell.focus()
+              event.preventDefault()
+              return
+            }
+          }
+          break
+      }
+
+      if (nextIndex !== currentIndex && focusableElements[nextIndex]) {
+        focusableElements[nextIndex].focus()
+        event.preventDefault()
+      }
+    }
+
+    // Auto-detect user preferences
+    const detectUserPreferences = () => {
+      // Check for prefers-reduced-motion
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        document.documentElement.style.setProperty('--animation-duration', '0.01ms')
+      }
+
+      // Check for prefers-contrast
+      if (window.matchMedia('(prefers-contrast: high)').matches) {
+        highContrast.value = true
+      }
+
+      // Check for forced-colors (Windows High Contrast mode)
+      if (window.matchMedia('(forced-colors: active)').matches) {
+        highContrast.value = true
+      }
+    }
+
+    // Keyboard shortcuts
     const handleGlobalKeyboard = (event) => {
       // Alt + A to toggle accessibility toolbar
       if (event.altKey && event.key === 'a') {
@@ -451,39 +531,63 @@ export default {
         event.preventDefault()
         decreaseFontSize()
       }
-
-      // Escape to close toolbar
-      if (event.key === 'Escape' && showToolbar.value) {
-        showToolbar.value = false
-        announceChange('Accessibility toolbar closed')
-      }
     }
 
-    // Lifecycle hooks
     onMounted(() => {
       loadSettings()
+      detectUserPreferences()
       document.addEventListener('keydown', handleGlobalKeyboard)
 
-      // Auto-detect user preferences
-      if (window.matchMedia('(prefers-contrast: high)').matches) {
-        highContrast.value = true
-        applyHighContrast()
+      // Apply loaded settings
+      if (fontSize.value !== 1) {
+        applyFontSize()
+      }
+      if (keyboardNavigation.value) {
+        enableKeyboardNavigation()
+      }
+      if (screenReaderMode.value) {
+        enableScreenReaderFeatures()
       }
 
-      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-        document.documentElement.style.setProperty('--animation-duration', '0.01ms')
+      // Add main content ID if it doesn't exist
+      const main = document.querySelector('main')
+      if (main && !main.id) {
+        main.id = 'main-content'
       }
     })
 
     onUnmounted(() => {
       document.removeEventListener('keydown', handleGlobalKeyboard)
       disableKeyboardNavigation()
-      disableScreenReaderFeatures()
-
       // Reset document styles on unmount
       document.documentElement.style.fontSize = ''
       document.body.style.fontSize = ''
-      removeHighContrast()
+      
+      // Remove high contrast classes
+      const elementsToClean = [document.documentElement, document.body]
+      elementsToClean.forEach(element => {
+        element.classList.remove('high-contrast-mode')
+      })
+      
+      const sections = document.querySelectorAll('main, section, header, footer, nav')
+      sections.forEach(section => {
+        section.classList.remove('high-contrast-mode')
+      })
+    })
+
+    // Watch for changes and apply them immediately
+    watch([highContrast, screenReaderMode, keyboardNavigation, fontSize], () => {
+      if (keyboardNavigation.value) {
+        enableKeyboardNavigation()
+      } else {
+        disableKeyboardNavigation()
+      }
+      
+      if (screenReaderMode.value) {
+        enableScreenReaderFeatures()
+      } else {
+        disableScreenReaderFeatures()
+      }
     })
 
     return {
@@ -494,11 +598,10 @@ export default {
       keyboardNavigation,
       currentAnnouncement,
       announcements,
-      focusIndicator,
+      accessibilityClasses,
       toggleHighContrast,
       increaseFontSize,
       decreaseFontSize,
-      applyFontSize,
       toggleScreenReader,
       toggleKeyboardNavigation,
       resetAccessibility,
@@ -520,9 +623,13 @@ export default {
   border-left: 2px solid #007bff;
   box-shadow: -4px 0 12px rgba(0, 0, 0, 0.15);
   z-index: 1055;
-  overflow-y: auto;
-  transform: translateX(0);
+  transform: translateX(100%);
   transition: transform 0.3s ease;
+  overflow-y: auto;
+}
+
+.accessibility-panel {
+  transform: translateX(0);
 }
 
 .panel-header {
@@ -683,7 +790,6 @@ export default {
   background: #e9ecef;
   outline: none;
   -webkit-appearance: none;
-  appearance: none;
 }
 
 .font-slider::-webkit-slider-thumb {
@@ -790,7 +896,6 @@ export default {
   background: rgba(0, 123, 255, 0.1);
   border-radius: 4px;
   transition: all 0.1s ease;
-  display: none;
 }
 
 /* Screen reader only content */
@@ -812,14 +917,14 @@ export default {
     width: 100%;
     right: 0;
   }
-
+  
   .accessibility-toggle-btn {
     top: auto;
     bottom: 20px;
     right: 20px;
     transform: none;
   }
-
+  
   .accessibility-toggle-btn:hover,
   .accessibility-toggle-btn:focus {
     transform: scale(1.05);
@@ -830,7 +935,7 @@ export default {
   .panel-content {
     padding: 15px;
   }
-
+  
   .accessibility-toggle-btn {
     width: 50px;
     height: 50px;
@@ -839,6 +944,8 @@ export default {
     right: 15px;
   }
 }
+</style>
+
 </style>
 
 <!-- Global High Contrast Styles -->
@@ -937,5 +1044,130 @@ export default {
 :deep(.high-contrast-mode) *:focus {
   outline: 3px solid #ffffff !important;
   outline-offset: 2px !important;
+}
+</style>
+
+:deep(.high-contrast) .btn-secondary {
+  background: #666 !important;
+  border-color: #666 !important;
+  color: #fff !important;
+}
+
+:deep(.high-contrast) .text-muted {
+  color: #000 !important;
+}
+
+:deep(.high-contrast) .bg-light {
+  background: #fff !important;
+  color: #000 !important;
+}
+
+:deep(.high-contrast) .bg-dark {
+  background: #000 !important;
+  color: #fff !important;
+}
+
+/* Screen reader mode styles */
+:deep(.screen-reader-mode) img {
+  border: 2px solid #007bff;
+}
+
+:deep(.screen-reader-mode) button,
+:deep(.screen-reader-mode) a {
+  position: relative;
+}
+
+:deep(.screen-reader-mode) button:focus::after,
+:deep(.screen-reader-mode) a:focus::after {
+  content: ' (focused)';
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+/* Keyboard navigation styles */
+:deep(.keyboard-navigation) {
+  --focus-outline: 3px solid #007bff;
+  --focus-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .accessibility-controls {
+    flex-wrap: wrap;
+    gap: 0.5rem !important;
+  }
+
+  .font-size-controls {
+    order: 2;
+    width: 100%;
+    justify-content: center;
+    margin-top: 0.5rem;
+  }
+
+  .accessibility-toolbar {
+    min-height: 80px;
+  }
+  
+  .toolbar-offset {
+    height: 80px;
+  }
+
+  .accessibility-toggle-btn {
+    width: 45px;
+    height: 45px;
+    top: 85px;
+    right: 10px;
+  }
+  
+  .btn {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .accessibility-controls {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem !important;
+  }
+  
+  .font-size-controls {
+    order: 1;
+    width: 100%;
+    justify-content: space-between;
+  }
+  
+  .accessibility-toolbar {
+    min-height: 120px;
+  }
+  
+  .toolbar-offset {
+    height: 120px;
+  }
+  
+  .accessibility-toggle-btn {
+    top: 125px;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Print styles */
+@media print {
+  .accessibility-toolbar,
+  .accessibility-toggle-btn {
+    display: none !important;
+  }
 }
 </style>

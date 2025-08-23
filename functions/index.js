@@ -221,7 +221,7 @@ exports.backupData = functions.https.onCall(async (data, context) => {
   }
 })
 
-// Cloud Function: Send bulk emails
+// Cloud Function: Send bulk emails with attachment support
 exports.sendBulkEmail = functions.https.onCall(async (data, context) => {
   try {
     // Verify authentication
@@ -229,7 +229,7 @@ exports.sendBulkEmail = functions.https.onCall(async (data, context) => {
       throw new functions.https.HttpsError('unauthenticated', 'User must be authenticated')
     }
 
-    const { recipients, subject, message, fromName } = data
+    const { recipients, subject, message, fromName, attachment } = data
 
     if (!recipients || !subject || !message) {
       throw new functions.https.HttpsError('invalid-argument', 'Missing required fields')
@@ -261,6 +261,18 @@ exports.sendBulkEmail = functions.https.onCall(async (data, context) => {
         `,
       }
 
+      // Add attachment if provided
+      if (attachment && attachment.content && attachment.filename) {
+        mailOptions.attachments = [
+          {
+            filename: attachment.filename,
+            content: attachment.content,
+            encoding: attachment.encoding || 'base64',
+            contentType: attachment.contentType || 'application/octet-stream',
+          },
+        ]
+      }
+
       return transporter.sendMail(mailOptions)
     })
 
@@ -277,6 +289,7 @@ exports.sendBulkEmail = functions.https.onCall(async (data, context) => {
       successful: successful,
       failed: failed,
       sentBy: context.auth.uid,
+      hasAttachment: !!attachment,
     })
 
     return {
@@ -288,6 +301,74 @@ exports.sendBulkEmail = functions.https.onCall(async (data, context) => {
   } catch (error) {
     console.error('Error sending bulk email:', error)
     throw new functions.https.HttpsError('internal', 'Failed to send bulk email')
+  }
+})
+
+// Cloud Function: Send single email with attachment
+exports.sendEmailWithAttachment = functions.https.onCall(async (data, context) => {
+  try {
+    // Verify authentication
+    if (!context.auth) {
+      throw new functions.https.HttpsError('unauthenticated', 'User must be authenticated')
+    }
+
+    const { to, subject, message, fromName, attachments } = data
+
+    if (!to || !subject || !message) {
+      throw new functions.https.HttpsError('invalid-argument', 'Missing required fields')
+    }
+
+    const mailOptions = {
+      from: `${fromName || 'Migrant Health Charity'} <noreply@migranthelp.org>`,
+      to: to,
+      subject: subject,
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h2 style="color: #2c3e50;">Migrant Health Charity</h2>
+          <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px;">
+            ${message.replace(/\n/g, '<br>')}
+          </div>
+          <hr style="margin: 20px 0;">
+          <p style="color: #6c757d; font-size: 0.9rem;">
+            Best regards,<br>
+            Migrant Health Charity Team
+          </p>
+        </div>
+      `,
+    }
+
+    // Add attachments if provided
+    if (attachments && Array.isArray(attachments) && attachments.length > 0) {
+      mailOptions.attachments = attachments.map((attachment) => ({
+        filename: attachment.filename,
+        content: attachment.content,
+        encoding: attachment.encoding || 'base64',
+        contentType: attachment.contentType || 'application/octet-stream',
+      }))
+    }
+
+    const result = await transporter.sendMail(mailOptions)
+
+    // Log email activity
+    await db.collection('emailLogs').add({
+      timestamp: admin.firestore.FieldValue.serverTimestamp(),
+      to: to,
+      subject: subject,
+      sentBy: context.auth.uid,
+      hasAttachment: !!(attachments && attachments.length > 0),
+      attachmentCount: attachments ? attachments.length : 0,
+      messageId: result.messageId,
+    })
+
+    return {
+      success: true,
+      message: 'Email sent successfully with attachments',
+      messageId: result.messageId,
+      attachmentCount: attachments ? attachments.length : 0,
+    }
+  } catch (error) {
+    console.error('Error sending email with attachment:', error)
+    throw new functions.https.HttpsError('internal', 'Failed to send email with attachment')
   }
 })
 
