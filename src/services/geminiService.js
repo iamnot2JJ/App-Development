@@ -184,7 +184,7 @@ Keep responses brief and in the user's language!`
       const isEnglish = /^[a-zA-Z\s.,!?]+$/.test(message.trim())
 
       if (isChinese) {
-        enhancedMessage += `\n\n[CRITICAL: 用户使用中文提问，你必须ONLY用中文回答，不要包含任何英文、拼音或其他语言。回答要简短（最多2-3句话）。]`
+        enhancedMessage += `\n\n[CRITICAL: 用户使用中文提问，你必须ONLY用中文回答，不要包含任何英文、拼音或其他语言。回答要简短（四五句话左右）。]`
       } else if (isEnglish) {
         enhancedMessage += `\n\n[CRITICAL: User wrote in English, respond ONLY in English with NO Chinese characters. Keep response brief (max 2-3 sentences).]`
       }

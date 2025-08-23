@@ -8,10 +8,11 @@
               <i class="fas fa-table me-2"></i>
               Health Services Data Tables
             </h4>
-            <p class="mb-0 text-muted">Interactive data tables with search, sort, and export functionality</p>
+            <p class="mb-0 text-muted">
+              Interactive data tables with search, sort, and export functionality
+            </p>
           </div>
           <div class="card-body">
-            
             <!-- Health Providers Table -->
             <div class="mb-5">
               <h5 class="mb-3">Healthcare Providers</h5>
@@ -44,7 +45,6 @@
                 id-field="id"
               />
             </div>
-
           </div>
         </div>
       </div>
@@ -59,7 +59,7 @@ import InteractiveDataTable from '../components/ui/InteractiveDataTable.vue'
 export default {
   name: 'DataTablesView',
   components: {
-    InteractiveDataTable
+    InteractiveDataTable,
   },
   setup() {
     // Healthcare Providers Data
@@ -73,7 +73,7 @@ export default {
         rating: 4.8,
         patients: 234,
         status: 'active',
-        joinDate: '2022-01-15'
+        joinDate: '2022-01-15',
       },
       {
         id: 2,
@@ -84,7 +84,7 @@ export default {
         rating: 4.9,
         patients: 189,
         status: 'active',
-        joinDate: '2021-08-22'
+        joinDate: '2021-08-22',
       },
       {
         id: 3,
@@ -95,7 +95,7 @@ export default {
         rating: 4.7,
         patients: 156,
         status: 'active',
-        joinDate: '2022-03-10'
+        joinDate: '2022-03-10',
       },
       {
         id: 4,
@@ -106,7 +106,7 @@ export default {
         rating: 4.6,
         patients: 301,
         status: 'inactive',
-        joinDate: '2020-11-05'
+        joinDate: '2020-11-05',
       },
       {
         id: 5,
@@ -117,8 +117,228 @@ export default {
         rating: 4.9,
         patients: 278,
         status: 'active',
-        joinDate: '2021-06-18'
-      }
+        joinDate: '2021-06-18',
+      },
+      {
+        id: 6,
+        name: 'Dr. James Wilson',
+        specialty: 'Orthopedics',
+        location: 'Melbourne Bone & Joint Clinic',
+        phone: '(03) 9678-9012',
+        rating: 4.5,
+        patients: 195,
+        status: 'active',
+        joinDate: '2022-02-28',
+      },
+      {
+        id: 7,
+        name: 'Dr. Lisa Wang',
+        specialty: 'Dermatology',
+        location: 'Skin Health Melbourne',
+        phone: '(03) 9789-0123',
+        rating: 4.8,
+        patients: 267,
+        status: 'active',
+        joinDate: '2021-09-14',
+      },
+      {
+        id: 8,
+        name: 'Dr. Mohammed Ali',
+        specialty: 'Internal Medicine',
+        location: 'Richmond Medical Centre',
+        phone: '(03) 9890-1234',
+        rating: 4.7,
+        patients: 324,
+        status: 'active',
+        joinDate: '2020-12-08',
+      },
+      {
+        id: 9,
+        name: 'Dr. Jennifer Brown',
+        specialty: 'Gynecology',
+        location: "Women's Health Clinic",
+        phone: '(03) 9901-2345',
+        rating: 4.9,
+        patients: 298,
+        status: 'active',
+        joinDate: '2021-07-03',
+      },
+      {
+        id: 10,
+        name: 'Dr. David Kim',
+        specialty: 'Ophthalmology',
+        location: 'Eye Care Melbourne',
+        phone: '(03) 9012-3456',
+        rating: 4.6,
+        patients: 178,
+        status: 'active',
+        joinDate: '2022-04-19',
+      },
+      {
+        id: 11,
+        name: 'Dr. Anna Petrov',
+        specialty: 'Endocrinology',
+        location: 'Diabetes & Hormone Centre',
+        phone: '(03) 9123-5678',
+        rating: 4.8,
+        patients: 156,
+        status: 'active',
+        joinDate: '2021-11-25',
+      },
+      {
+        id: 12,
+        name: 'Dr. Roberto Santos',
+        specialty: 'Neurology',
+        location: 'Brain Health Institute',
+        phone: '(03) 9234-6789',
+        rating: 4.7,
+        patients: 213,
+        status: 'active',
+        joinDate: '2020-08-12',
+      },
+      {
+        id: 13,
+        name: 'Dr. Fatima Al-Rashid',
+        specialty: 'Psychiatry',
+        location: 'Mental Wellness Centre',
+        phone: '(03) 9345-7890',
+        rating: 4.9,
+        patients: 167,
+        status: 'active',
+        joinDate: '2022-01-30',
+      },
+      {
+        id: 14,
+        name: "Dr. Michael O'Brien",
+        specialty: 'Emergency Medicine',
+        location: "St. Vincent's Hospital",
+        phone: '(03) 9456-8901',
+        rating: 4.5,
+        patients: 445,
+        status: 'active',
+        joinDate: '2019-03-17',
+      },
+      {
+        id: 15,
+        name: 'Dr. Priya Sharma',
+        specialty: 'Gastroenterology',
+        location: 'Digestive Health Clinic',
+        phone: '(03) 9567-9012',
+        rating: 4.8,
+        patients: 234,
+        status: 'active',
+        joinDate: '2021-05-08',
+      },
+      {
+        id: 16,
+        name: 'Dr. Thomas Anderson',
+        specialty: 'Urology',
+        location: "Men's Health Centre",
+        phone: '(03) 9678-0123',
+        rating: 4.6,
+        patients: 189,
+        status: 'active',
+        joinDate: '2022-06-14',
+      },
+      {
+        id: 17,
+        name: 'Dr. Yuki Tanaka',
+        specialty: 'Rheumatology',
+        location: 'Joint Care Melbourne',
+        phone: '(03) 9789-1234',
+        rating: 4.7,
+        patients: 145,
+        status: 'active',
+        joinDate: '2021-10-22',
+      },
+      {
+        id: 18,
+        name: 'Dr. Sophie Martin',
+        specialty: 'Oncology',
+        location: 'Cancer Care Centre',
+        phone: '(03) 9890-2345',
+        rating: 4.9,
+        patients: 267,
+        status: 'active',
+        joinDate: '2020-09-05',
+      },
+      {
+        id: 19,
+        name: 'Dr. Hassan Mahmoud',
+        specialty: 'Pulmonology',
+        location: 'Lung Health Institute',
+        phone: '(03) 9901-3456',
+        rating: 4.8,
+        patients: 198,
+        status: 'active',
+        joinDate: '2021-12-11',
+      },
+      {
+        id: 20,
+        name: 'Dr. Isabella Garcia',
+        specialty: 'Radiology',
+        location: 'Medical Imaging Centre',
+        phone: '(03) 9012-4567',
+        rating: 4.6,
+        patients: 312,
+        status: 'active',
+        joinDate: '2022-03-27',
+      },
+      {
+        id: 21,
+        name: 'Dr. Kevin Liu',
+        specialty: 'Anesthesiology',
+        location: 'Surgery Centre Melbourne',
+        phone: '(03) 9123-6789',
+        rating: 4.7,
+        patients: 278,
+        status: 'active',
+        joinDate: '2021-04-16',
+      },
+      {
+        id: 22,
+        name: 'Dr. Rachel Cohen',
+        specialty: 'Pathology',
+        location: 'Lab Services Melbourne',
+        phone: '(03) 9234-7890',
+        rating: 4.5,
+        patients: 456,
+        status: 'active',
+        joinDate: '2020-07-23',
+      },
+      {
+        id: 23,
+        name: 'Dr. Antonio Silva',
+        specialty: 'Plastic Surgery',
+        location: 'Aesthetic Medical Centre',
+        phone: '(03) 9345-8901',
+        rating: 4.8,
+        patients: 167,
+        status: 'active',
+        joinDate: '2022-05-09',
+      },
+      {
+        id: 24,
+        name: 'Dr. Maya Patel',
+        specialty: 'Family Medicine',
+        location: 'Community Health Hub',
+        phone: '(03) 9456-9012',
+        rating: 4.9,
+        patients: 389,
+        status: 'active',
+        joinDate: '2021-01-28',
+      },
+      {
+        id: 25,
+        name: 'Dr. Erik Johansson',
+        specialty: 'Sports Medicine',
+        location: 'Athletic Performance Clinic',
+        phone: '(03) 9567-0123',
+        rating: 4.7,
+        patients: 234,
+        status: 'active',
+        joinDate: '2022-08-15',
+      },
     ])
 
     const providersColumns = ref([
@@ -129,7 +349,7 @@ export default {
       { key: 'rating', label: 'Rating' },
       { key: 'patients', label: 'Patients' },
       { key: 'status', label: 'Status', type: 'badge' },
-      { key: 'joinDate', label: 'Join Date', type: 'date' }
+      { key: 'joinDate', label: 'Join Date', type: 'date' },
     ])
 
     const providerActions = ref([
@@ -138,14 +358,14 @@ export default {
         icon: 'fas fa-eye',
         variant: 'primary',
         title: 'View Details',
-        handler: (row) => alert(`Viewing details for ${row.name}`)
+        handler: (row) => alert(`Viewing details for ${row.name}`),
       },
       {
         name: 'edit',
         icon: 'fas fa-edit',
         variant: 'warning',
         title: 'Edit Provider',
-        handler: (row) => alert(`Editing ${row.name}`)
+        handler: (row) => alert(`Editing ${row.name}`),
       },
       {
         name: 'delete',
@@ -154,10 +374,10 @@ export default {
         title: 'Delete Provider',
         handler: (row) => {
           if (confirm(`Are you sure you want to delete ${row.name}?`)) {
-            providersData.value = providersData.value.filter(p => p.id !== row.id)
+            providersData.value = providersData.value.filter((p) => p.id !== row.id)
           }
-        }
-      }
+        },
+      },
     ])
 
     // Users Data
@@ -172,7 +392,7 @@ export default {
         registeredAt: '2023-01-15',
         lastLogin: '2024-01-10',
         appointmentsCount: 5,
-        status: 'active'
+        status: 'active',
       },
       {
         id: 2,
@@ -184,7 +404,7 @@ export default {
         registeredAt: '2023-02-20',
         lastLogin: '2024-01-08',
         appointmentsCount: 3,
-        status: 'active'
+        status: 'active',
       },
       {
         id: 3,
@@ -196,7 +416,7 @@ export default {
         registeredAt: '2023-03-12',
         lastLogin: '2024-01-05',
         appointmentsCount: 7,
-        status: 'active'
+        status: 'active',
       },
       {
         id: 4,
@@ -208,7 +428,7 @@ export default {
         registeredAt: '2023-01-08',
         lastLogin: '2023-12-20',
         appointmentsCount: 2,
-        status: 'inactive'
+        status: 'inactive',
       },
       {
         id: 5,
@@ -220,8 +440,248 @@ export default {
         registeredAt: '2023-04-25',
         lastLogin: '2024-01-09',
         appointmentsCount: 4,
-        status: 'active'
-      }
+        status: 'active',
+      },
+      {
+        id: 6,
+        firstName: 'Hassan',
+        lastName: 'Rahman',
+        email: 'hassan.rahman@email.com',
+        country: 'Bangladesh',
+        language: 'Bengali',
+        registeredAt: '2023-03-18',
+        lastLogin: '2024-01-11',
+        appointmentsCount: 6,
+        status: 'active',
+      },
+      {
+        id: 7,
+        firstName: 'Elena',
+        lastName: 'Kozlov',
+        email: 'elena.kozlov@email.com',
+        country: 'Russia',
+        language: 'Russian',
+        registeredAt: '2023-05-02',
+        lastLogin: '2024-01-09',
+        appointmentsCount: 3,
+        status: 'active',
+      },
+      {
+        id: 8,
+        firstName: 'Giuseppe',
+        lastName: 'Romano',
+        email: 'giuseppe.romano@email.com',
+        country: 'Italy',
+        language: 'Italian',
+        registeredAt: '2023-02-14',
+        lastLogin: '2024-01-07',
+        appointmentsCount: 8,
+        status: 'active',
+      },
+      {
+        id: 9,
+        firstName: 'Yuki',
+        lastName: 'Tanaka',
+        email: 'yuki.tanaka@email.com',
+        country: 'Japan',
+        language: 'Japanese',
+        registeredAt: '2023-04-10',
+        lastLogin: '2024-01-06',
+        appointmentsCount: 4,
+        status: 'active',
+      },
+      {
+        id: 10,
+        firstName: 'Pierre',
+        lastName: 'Dubois',
+        email: 'pierre.dubois@email.com',
+        country: 'France',
+        language: 'French',
+        registeredAt: '2023-06-15',
+        lastLogin: '2024-01-08',
+        appointmentsCount: 2,
+        status: 'active',
+      },
+      {
+        id: 11,
+        firstName: 'Fatima',
+        lastName: 'Al-Zahra',
+        email: 'fatima.alzahra@email.com',
+        country: 'Iraq',
+        language: 'Arabic',
+        registeredAt: '2023-07-22',
+        lastLogin: '2024-01-05',
+        appointmentsCount: 9,
+        status: 'active',
+      },
+      {
+        id: 12,
+        firstName: 'Hans',
+        lastName: 'Mueller',
+        email: 'hans.mueller@email.com',
+        country: 'Germany',
+        language: 'German',
+        registeredAt: '2023-01-30',
+        lastLogin: '2023-12-28',
+        appointmentsCount: 1,
+        status: 'inactive',
+      },
+      {
+        id: 13,
+        firstName: 'Rosa',
+        lastName: 'Santos',
+        email: 'rosa.santos@email.com',
+        country: 'Brazil',
+        language: 'Portuguese',
+        registeredAt: '2023-08-11',
+        lastLogin: '2024-01-10',
+        appointmentsCount: 5,
+        status: 'active',
+      },
+      {
+        id: 14,
+        firstName: 'Viktor',
+        lastName: 'Petrov',
+        email: 'viktor.petrov@email.com',
+        country: 'Ukraine',
+        language: 'Ukrainian',
+        registeredAt: '2023-03-25',
+        lastLogin: '2024-01-09',
+        appointmentsCount: 7,
+        status: 'active',
+      },
+      {
+        id: 15,
+        firstName: 'Amira',
+        lastName: 'Hassan',
+        email: 'amira.hassan@email.com',
+        country: 'Egypt',
+        language: 'Arabic',
+        registeredAt: '2023-09-08',
+        lastLogin: '2024-01-11',
+        appointmentsCount: 3,
+        status: 'active',
+      },
+      {
+        id: 16,
+        firstName: 'Jin',
+        lastName: 'Park',
+        email: 'jin.park@email.com',
+        country: 'South Korea',
+        language: 'Korean',
+        registeredAt: '2023-05-17',
+        lastLogin: '2024-01-08',
+        appointmentsCount: 6,
+        status: 'active',
+      },
+      {
+        id: 17,
+        firstName: 'Nguyen',
+        lastName: 'Tran',
+        email: 'nguyen.tran@email.com',
+        country: 'Vietnam',
+        language: 'Vietnamese',
+        registeredAt: '2023-10-14',
+        lastLogin: '2024-01-07',
+        appointmentsCount: 4,
+        status: 'active',
+      },
+      {
+        id: 18,
+        firstName: 'Dimitri',
+        lastName: 'Papadopoulos',
+        email: 'dimitri.papadopoulos@email.com',
+        country: 'Greece',
+        language: 'Greek',
+        registeredAt: '2023-04-03',
+        lastLogin: '2024-01-06',
+        appointmentsCount: 8,
+        status: 'active',
+      },
+      {
+        id: 19,
+        firstName: 'Olga',
+        lastName: 'Ivanova',
+        email: 'olga.ivanova@email.com',
+        country: 'Bulgaria',
+        language: 'Bulgarian',
+        registeredAt: '2023-07-19',
+        lastLogin: '2024-01-10',
+        appointmentsCount: 2,
+        status: 'active',
+      },
+      {
+        id: 20,
+        firstName: 'Raj',
+        lastName: 'Patel',
+        email: 'raj.patel@email.com',
+        country: 'India',
+        language: 'Gujarati',
+        registeredAt: '2023-02-28',
+        lastLogin: '2024-01-09',
+        appointmentsCount: 5,
+        status: 'active',
+      },
+      {
+        id: 21,
+        firstName: 'Chen',
+        lastName: 'Zhang',
+        email: 'chen.zhang@email.com',
+        country: 'China',
+        language: 'Mandarin',
+        registeredAt: '2023-11-12',
+        lastLogin: '2024-01-11',
+        appointmentsCount: 1,
+        status: 'active',
+      },
+      {
+        id: 22,
+        firstName: 'Sofia',
+        lastName: 'Andersson',
+        email: 'sofia.andersson@email.com',
+        country: 'Sweden',
+        language: 'Swedish',
+        registeredAt: '2023-06-07',
+        lastLogin: '2024-01-08',
+        appointmentsCount: 7,
+        status: 'active',
+      },
+      {
+        id: 23,
+        firstName: 'Omar',
+        lastName: 'Abdullah',
+        email: 'omar.abdullah@email.com',
+        country: 'Jordan',
+        language: 'Arabic',
+        registeredAt: '2023-08-29',
+        lastLogin: '2024-01-07',
+        appointmentsCount: 3,
+        status: 'active',
+      },
+      {
+        id: 24,
+        firstName: 'Isabella',
+        lastName: 'Rossi',
+        email: 'isabella.rossi@email.com',
+        country: 'Italy',
+        language: 'Italian',
+        registeredAt: '2023-05-24',
+        lastLogin: '2023-12-22',
+        appointmentsCount: 0,
+        status: 'inactive',
+      },
+      {
+        id: 25,
+        firstName: 'Amir',
+        lastName: 'Hosseini',
+        email: 'amir.hosseini@email.com',
+        country: 'Iran',
+        language: 'Persian',
+        registeredAt: '2023-09-16',
+        lastLogin: '2024-01-10',
+        appointmentsCount: 6,
+        status: 'active',
+      },
     ])
 
     const usersColumns = ref([
@@ -233,7 +693,7 @@ export default {
       { key: 'appointmentsCount', label: 'Appointments' },
       { key: 'registeredAt', label: 'Registered', type: 'date' },
       { key: 'lastLogin', label: 'Last Login', type: 'date' },
-      { key: 'status', label: 'Status', type: 'badge' }
+      { key: 'status', label: 'Status', type: 'badge' },
     ])
 
     const userActions = ref([
@@ -242,15 +702,15 @@ export default {
         icon: 'fas fa-user',
         variant: 'info',
         title: 'View Profile',
-        handler: (row) => alert(`Viewing profile for ${row.firstName} ${row.lastName}`)
+        handler: (row) => alert(`Viewing profile for ${row.firstName} ${row.lastName}`),
       },
       {
         name: 'message',
         icon: 'fas fa-envelope',
         variant: 'success',
         title: 'Send Message',
-        handler: (row) => alert(`Sending message to ${row.email}`)
-      }
+        handler: (row) => alert(`Sending message to ${row.email}`),
+      },
     ])
 
     // Appointments Data
@@ -263,8 +723,8 @@ export default {
         date: '2024-01-15',
         time: '10:00',
         status: 'confirmed',
-        cost: 85.00,
-        duration: 30
+        cost: 85.0,
+        duration: 30,
       },
       {
         id: 2,
@@ -274,8 +734,8 @@ export default {
         date: '2024-01-16',
         time: '14:00',
         status: 'pending',
-        cost: 120.00,
-        duration: 60
+        cost: 120.0,
+        duration: 60,
       },
       {
         id: 3,
@@ -285,8 +745,8 @@ export default {
         date: '2024-01-17',
         time: '09:00',
         status: 'confirmed',
-        cost: 0.00,
-        duration: 45
+        cost: 0.0,
+        duration: 45,
       },
       {
         id: 4,
@@ -296,8 +756,8 @@ export default {
         date: '2024-01-18',
         time: '11:00',
         status: 'cancelled',
-        cost: 150.00,
-        duration: 30
+        cost: 150.0,
+        duration: 30,
       },
       {
         id: 5,
@@ -307,9 +767,229 @@ export default {
         date: '2024-01-19',
         time: '15:30',
         status: 'completed',
-        cost: 95.00,
-        duration: 30
-      }
+        cost: 95.0,
+        duration: 30,
+      },
+      {
+        id: 6,
+        patientName: 'Hassan Rahman',
+        providerName: 'Dr. James Wilson',
+        service: 'Orthopedic Consultation',
+        date: '2024-01-20',
+        time: '09:30',
+        status: 'confirmed',
+        cost: 180.0,
+        duration: 45,
+      },
+      {
+        id: 7,
+        patientName: 'Elena Kozlov',
+        providerName: 'Dr. Lisa Wang',
+        service: 'Dermatology Check',
+        date: '2024-01-21',
+        time: '11:15',
+        status: 'completed',
+        cost: 150.0,
+        duration: 30,
+      },
+      {
+        id: 8,
+        patientName: 'Giuseppe Romano',
+        providerName: 'Dr. Mohammed Ali',
+        service: 'Internal Medicine',
+        date: '2024-01-22',
+        time: '14:45',
+        status: 'confirmed',
+        cost: 125.0,
+        duration: 40,
+      },
+      {
+        id: 9,
+        patientName: 'Yuki Tanaka',
+        providerName: 'Dr. Jennifer Brown',
+        service: 'Gynecology Consultation',
+        date: '2024-01-23',
+        time: '10:30',
+        status: 'pending',
+        cost: 165.0,
+        duration: 45,
+      },
+      {
+        id: 10,
+        patientName: 'Pierre Dubois',
+        providerName: 'Dr. David Kim',
+        service: 'Eye Examination',
+        date: '2024-01-24',
+        time: '16:00',
+        status: 'confirmed',
+        cost: 135.0,
+        duration: 30,
+      },
+      {
+        id: 11,
+        patientName: 'Fatima Al-Zahra',
+        providerName: 'Dr. Anna Petrov',
+        service: 'Endocrinology Consultation',
+        date: '2024-01-25',
+        time: '08:30',
+        status: 'completed',
+        cost: 200.0,
+        duration: 60,
+      },
+      {
+        id: 12,
+        patientName: 'Hans Mueller',
+        providerName: 'Dr. Roberto Santos',
+        service: 'Neurology Assessment',
+        date: '2024-01-26',
+        time: '13:15',
+        status: 'cancelled',
+        cost: 220.0,
+        duration: 45,
+      },
+      {
+        id: 13,
+        patientName: 'Rosa Santos',
+        providerName: 'Dr. Fatima Al-Rashid',
+        service: 'Psychiatric Evaluation',
+        date: '2024-01-27',
+        time: '11:00',
+        status: 'confirmed',
+        cost: 180.0,
+        duration: 60,
+      },
+      {
+        id: 14,
+        patientName: 'Viktor Petrov',
+        providerName: "Dr. Michael O'Brien",
+        service: 'Emergency Consultation',
+        date: '2024-01-28',
+        time: '19:30',
+        status: 'completed',
+        cost: 250.0,
+        duration: 30,
+      },
+      {
+        id: 15,
+        patientName: 'Amira Hassan',
+        providerName: 'Dr. Priya Sharma',
+        service: 'Gastroenterology Check',
+        date: '2024-01-29',
+        time: '15:45',
+        status: 'pending',
+        cost: 175.0,
+        duration: 45,
+      },
+      {
+        id: 16,
+        patientName: 'Jin Park',
+        providerName: 'Dr. Thomas Anderson',
+        service: 'Urology Consultation',
+        date: '2024-01-30',
+        time: '12:30',
+        status: 'confirmed',
+        cost: 160.0,
+        duration: 30,
+      },
+      {
+        id: 17,
+        patientName: 'Nguyen Tran',
+        providerName: 'Dr. Yuki Tanaka',
+        service: 'Rheumatology Check',
+        date: '2024-01-31',
+        time: '10:15',
+        status: 'completed',
+        cost: 190.0,
+        duration: 45,
+      },
+      {
+        id: 18,
+        patientName: 'Dimitri Papadopoulos',
+        providerName: 'Dr. Sophie Martin',
+        service: 'Oncology Consultation',
+        date: '2024-02-01',
+        time: '14:00',
+        status: 'confirmed',
+        cost: 300.0,
+        duration: 60,
+      },
+      {
+        id: 19,
+        patientName: 'Olga Ivanova',
+        providerName: 'Dr. Hassan Mahmoud',
+        service: 'Pulmonology Assessment',
+        date: '2024-02-02',
+        time: '09:45',
+        status: 'pending',
+        cost: 185.0,
+        duration: 45,
+      },
+      {
+        id: 20,
+        patientName: 'Raj Patel',
+        providerName: 'Dr. Isabella Garcia',
+        service: 'Medical Imaging',
+        date: '2024-02-03',
+        time: '11:30',
+        status: 'completed',
+        cost: 225.0,
+        duration: 30,
+      },
+      {
+        id: 21,
+        patientName: 'Chen Zhang',
+        providerName: 'Dr. Kevin Liu',
+        service: 'Anesthesia Consultation',
+        date: '2024-02-04',
+        time: '16:15',
+        status: 'confirmed',
+        cost: 140.0,
+        duration: 30,
+      },
+      {
+        id: 22,
+        patientName: 'Sofia Andersson',
+        providerName: 'Dr. Rachel Cohen',
+        service: 'Lab Results Review',
+        date: '2024-02-05',
+        time: '13:45',
+        status: 'completed',
+        cost: 80.0,
+        duration: 20,
+      },
+      {
+        id: 23,
+        patientName: 'Omar Abdullah',
+        providerName: 'Dr. Antonio Silva',
+        service: 'Plastic Surgery Consultation',
+        date: '2024-02-06',
+        time: '10:00',
+        status: 'pending',
+        cost: 350.0,
+        duration: 60,
+      },
+      {
+        id: 24,
+        patientName: 'Isabella Rossi',
+        providerName: 'Dr. Maya Patel',
+        service: 'Family Medicine Check',
+        date: '2024-02-07',
+        time: '15:30',
+        status: 'cancelled',
+        cost: 110.0,
+        duration: 30,
+      },
+      {
+        id: 25,
+        patientName: 'Amir Hosseini',
+        providerName: 'Dr. Erik Johansson',
+        service: 'Sports Medicine Assessment',
+        date: '2024-02-08',
+        time: '12:00',
+        status: 'confirmed',
+        cost: 170.0,
+        duration: 45,
+      },
     ])
 
     const appointmentsColumns = ref([
@@ -320,7 +1000,7 @@ export default {
       { key: 'time', label: 'Time' },
       { key: 'duration', label: 'Duration (min)' },
       { key: 'cost', label: 'Cost', type: 'currency' },
-      { key: 'status', label: 'Status', type: 'badge' }
+      { key: 'status', label: 'Status', type: 'badge' },
     ])
 
     const appointmentActions = ref([
@@ -329,14 +1009,14 @@ export default {
         icon: 'fas fa-calendar-alt',
         variant: 'primary',
         title: 'View Appointment',
-        handler: (row) => alert(`Viewing appointment for ${row.patientName}`)
+        handler: (row) => alert(`Viewing appointment for ${row.patientName}`),
       },
       {
         name: 'reschedule',
         icon: 'fas fa-clock',
         variant: 'warning',
         title: 'Reschedule',
-        handler: (row) => alert(`Rescheduling appointment for ${row.patientName}`)
+        handler: (row) => alert(`Rescheduling appointment for ${row.patientName}`),
       },
       {
         name: 'cancel',
@@ -347,8 +1027,8 @@ export default {
           if (confirm(`Cancel appointment for ${row.patientName}?`)) {
             row.status = 'cancelled'
           }
-        }
-      }
+        },
+      },
     ])
 
     return {
@@ -360,9 +1040,9 @@ export default {
       userActions,
       appointmentsData,
       appointmentsColumns,
-      appointmentActions
+      appointmentActions,
     }
-  }
+  },
 }
 </script>
 

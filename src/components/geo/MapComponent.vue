@@ -45,7 +45,47 @@
                   </div>
                   <div class="col-md-3">
                     <button class="btn btn-info w-100" @click="showDirections = !showDirections">
-                      <i class="fas fa-route"></i> Directions
+                      <i class="fas fa-route"></i> Navigation
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Advanced Search Panel -->
+                <div class="row g-2 mt-2">
+                  <div class="col-md-4">
+                    <div class="input-group">
+                      <input
+                        type="number"
+                        class="form-control"
+                        placeholder="Search radius (km)"
+                        v-model="searchRadius"
+                        min="1"
+                        max="50"
+                      />
+                      <button class="btn btn-outline-secondary" @click="searchNearby">
+                        <i class="fas fa-search-location"></i> Nearby
+                      </button>
+                    </div>
+                  </div>
+                  <div class="col-md-3">
+                    <select class="form-select" v-model="sortBy" @change="sortResults">
+                      <option value="distance">Sort by Distance</option>
+                      <option value="rating">Sort by Rating</option>
+                      <option value="name">Sort by Name</option>
+                      <option value="availability">Sort by Availability</option>
+                    </select>
+                  </div>
+                  <div class="col-md-3">
+                    <button
+                      class="btn btn-warning w-100"
+                      @click="showTrafficLayer = !showTrafficLayer"
+                    >
+                      <i class="fas fa-road"></i> {{ showTrafficLayer ? 'Hide' : 'Show' }} Traffic
+                    </button>
+                  </div>
+                  <div class="col-md-2">
+                    <button class="btn btn-secondary w-100" @click="toggleMapStyle">
+                      <i class="fas fa-layer-group"></i> Style
                     </button>
                   </div>
                 </div>
@@ -53,36 +93,132 @@
 
               <div v-if="showDirections" class="directions-panel card mb-3">
                 <div class="card-header">
-                  <h6 class="mb-0">Get Directions</h6>
+                  <h6 class="mb-0"><i class="fas fa-route"></i> Navigation & Trip Planner</h6>
                 </div>
                 <div class="card-body">
                   <div class="row g-2">
-                    <div class="col-md-5">
+                    <div class="col-md-4">
+                      <label class="form-label small">From:</label>
                       <input
                         type="text"
                         class="form-control"
-                        placeholder="From location..."
+                        placeholder="Enter start location..."
                         v-model="directionsFrom"
+                        @keyup.enter="calculateRoute"
                       />
                     </div>
-                    <div class="col-md-5">
+                    <div class="col-md-4">
+                      <label class="form-label small">To:</label>
                       <input
                         type="text"
                         class="form-control"
-                        placeholder="To location..."
+                        placeholder="Enter destination..."
                         v-model="directionsTo"
+                        @keyup.enter="calculateRoute"
                       />
                     </div>
                     <div class="col-md-2">
+                      <label class="form-label small">Travel Mode:</label>
+                      <select class="form-select" v-model="travelMode">
+                        <option value="driving">🚗 Driving</option>
+                        <option value="walking">🚶 Walking</option>
+                        <option value="transit">🚌 Transit</option>
+                        <option value="cycling">🚴 Cycling</option>
+                      </select>
+                    </div>
+                    <div class="col-md-2">
+                      <label class="form-label small">&nbsp;</label>
                       <button class="btn btn-primary w-100" @click="calculateRoute">
-                        <i class="fas fa-directions"></i>
+                        <i class="fas fa-directions"></i> Get Route
                       </button>
                     </div>
                   </div>
-                  <div v-if="routeInfo" class="mt-2">
-                    <small class="text-muted">
-                      Distance: {{ routeInfo.distance }} | Duration: {{ routeInfo.duration }}
-                    </small>
+
+                  <!-- Multi-stop trip planner -->
+                  <div class="mt-3" v-if="tripStops.length > 0">
+                    <h6 class="text-muted">Trip Planner <small>(Multiple Stops)</small></h6>
+                    <div class="trip-stops">
+                      <div
+                        v-for="(stop, index) in tripStops"
+                        :key="index"
+                        class="trip-stop d-flex align-items-center mb-2"
+                      >
+                        <span class="badge bg-primary me-2">{{ index + 1 }}</span>
+                        <input
+                          type="text"
+                          class="form-control me-2"
+                          v-model="stop.location"
+                          :placeholder="`Stop ${index + 1}`"
+                        />
+                        <button class="btn btn-sm btn-outline-danger" @click="removeStop(index)">
+                          <i class="fas fa-times"></i>
+                        </button>
+                      </div>
+                    </div>
+                    <button class="btn btn-sm btn-outline-primary me-2" @click="addStop">
+                      <i class="fas fa-plus"></i> Add Stop
+                    </button>
+                    <button class="btn btn-sm btn-success" @click="planTrip">
+                      <i class="fas fa-map-marked-alt"></i> Plan Trip
+                    </button>
+                  </div>
+
+                  <div class="mt-2">
+                    <button
+                      class="btn btn-sm btn-outline-secondary me-2"
+                      @click="useCurrentLocation('from')"
+                    >
+                      <i class="fas fa-crosshairs"></i> Use My Location (From)
+                    </button>
+                    <button class="btn btn-sm btn-outline-info" @click="addStop">
+                      <i class="fas fa-plus-circle"></i> Multi-Stop Trip
+                    </button>
+                  </div>
+
+                  <div v-if="routeInfo" class="route-info mt-3 p-3 bg-light rounded">
+                    <div class="row">
+                      <div class="col-md-3">
+                        <strong>Distance:</strong> {{ routeInfo.distance }}
+                      </div>
+                      <div class="col-md-3">
+                        <strong>Duration:</strong> {{ routeInfo.duration }}
+                      </div>
+                      <div class="col-md-3">
+                        <strong>Mode:</strong> {{ getTravelModeIcon(travelMode) }} {{ travelMode }}
+                      </div>
+                      <div class="col-md-3">
+                        <strong>Cost:</strong> {{ routeInfo.cost || 'Free' }}
+                      </div>
+                    </div>
+                    <div v-if="routeInfo.instructions" class="mt-2">
+                      <button
+                        class="btn btn-sm btn-outline-primary"
+                        @click="showTurnByTurn = !showTurnByTurn"
+                      >
+                        <i class="fas fa-list"></i>
+                        {{ showTurnByTurn ? 'Hide' : 'Show' }} Turn-by-Turn
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- Turn-by-turn directions -->
+                  <div v-if="showTurnByTurn && routeInfo?.instructions" class="turn-by-turn mt-3">
+                    <h6>Turn-by-Turn Directions</h6>
+                    <div class="directions-list" style="max-height: 200px; overflow-y: auto">
+                      <div
+                        v-for="(instruction, index) in routeInfo.instructions"
+                        :key="index"
+                        class="direction-step d-flex align-items-start p-2 border-bottom"
+                      >
+                        <span class="step-number badge bg-secondary me-2">{{ index + 1 }}</span>
+                        <div>
+                          <div class="step-instruction">{{ instruction.text }}</div>
+                          <small class="text-muted"
+                            >{{ instruction.distance }} - {{ instruction.duration }}</small
+                          >
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -145,6 +281,17 @@ export default {
     const routeInfo = ref(null)
     const markers = ref([])
     const userLocation = ref(null)
+    const currentRoute = ref(null)
+
+    // New navigation features
+    const travelMode = ref('driving')
+    const tripStops = ref([])
+    const showTurnByTurn = ref(false)
+    const searchRadius = ref(5)
+    const sortBy = ref('distance')
+    const showTrafficLayer = ref(false)
+    const mapStyle = ref('default')
+    const trafficLayer = ref(null)
 
     const markerTypes = [
       { key: 'hospital', label: 'Hospitals', icon: 'fa-hospital', color: '#dc3545' },
@@ -411,15 +558,155 @@ export default {
         return
       }
 
-      // Simulate route calculation
-      // In a real implementation, you would use a routing service like OpenRouteService
-      routeInfo.value = {
-        distance: '12.5 km',
-        duration: '18 mins',
+      try {
+        // Clear existing route
+        if (currentRoute.value) {
+          map.value.removeLayer(currentRoute.value)
+        }
+
+        // Simulate realistic route calculation based on travel mode
+        const routeData = await simulateRouteCalculation()
+
+        routeInfo.value = {
+          distance: routeData.distance,
+          duration: routeData.duration,
+          cost: routeData.cost,
+          instructions: routeData.instructions,
+        }
+
+        // Draw route on map
+        drawRoute(routeData.coordinates)
+
+        // Fit map to show entire route
+        if (routeData.bounds) {
+          map.value.fitBounds(routeData.bounds)
+        }
+      } catch (error) {
+        console.error('Route calculation error:', error)
+        alert('Failed to calculate route. Please try again.')
+      }
+    }
+
+    const simulateRouteCalculation = async () => {
+      // Simulate API delay
+      await new Promise((resolve) => setTimeout(resolve, 1000))
+
+      const modes = {
+        driving: {
+          baseSpeed: 45, // km/h
+          cost: '$3.50 (fuel)',
+          instructions: [
+            { text: 'Head north on Collins Street', distance: '0.5 km', duration: '2 min' },
+            { text: 'Turn right onto Spencer Street', distance: '1.2 km', duration: '3 min' },
+            { text: 'Continue straight for 2.5 km', distance: '2.5 km', duration: '4 min' },
+            { text: 'Turn left onto destination street', distance: '0.3 km', duration: '1 min' },
+            { text: 'Arrive at destination', distance: '0 km', duration: '0 min' },
+          ],
+        },
+        walking: {
+          baseSpeed: 5, // km/h
+          cost: 'Free',
+          instructions: [
+            { text: 'Walk north on Collins Street', distance: '0.5 km', duration: '6 min' },
+            { text: 'Turn right onto Spencer Street', distance: '1.2 km', duration: '14 min' },
+            { text: 'Continue straight', distance: '2.5 km', duration: '30 min' },
+            { text: 'Turn left to destination', distance: '0.3 km', duration: '4 min' },
+          ],
+        },
+        transit: {
+          baseSpeed: 25, // km/h
+          cost: '$4.60 (Myki)',
+          instructions: [
+            { text: 'Walk to Collins Street tram stop', distance: '0.2 km', duration: '3 min' },
+            {
+              text: 'Take Tram 35 towards North Melbourne',
+              distance: '3.8 km',
+              duration: '12 min',
+            },
+            { text: 'Get off at Spencer Street', distance: '0 km', duration: '1 min' },
+            { text: 'Walk to destination', distance: '0.5 km', duration: '6 min' },
+          ],
+        },
+        cycling: {
+          baseSpeed: 15, // km/h
+          cost: 'Free',
+          instructions: [
+            {
+              text: 'Cycle north on Collins Street bike lane',
+              distance: '0.5 km',
+              duration: '2 min',
+            },
+            { text: 'Turn right onto Spencer Street', distance: '1.2 km', duration: '5 min' },
+            { text: 'Continue on bike path', distance: '2.5 km', duration: '10 min' },
+            { text: 'Turn left to destination', distance: '0.3 km', duration: '1 min' },
+          ],
+        },
       }
 
-      // Draw a simple line between points (simplified)
-      // In practice, you'd get the actual route from a routing service
+      const modeData = modes[travelMode.value]
+      const totalDistance = 4.5 + Math.random() * 2 // km
+      const duration = Math.round((totalDistance / modeData.baseSpeed) * 60) // minutes
+
+      return {
+        distance: `${totalDistance.toFixed(1)} km`,
+        duration: `${duration} min`,
+        cost: modeData.cost,
+        instructions: modeData.instructions,
+        coordinates: generateRouteCoordinates(),
+        bounds: [
+          [-37.82, 144.95],
+          [-37.81, 144.97],
+        ],
+      }
+    }
+
+    const generateRouteCoordinates = () => {
+      // Generate sample route coordinates between Melbourne locations
+      const start = [-37.8136, 144.9631]
+      const end = [-37.7991, 144.9553]
+
+      const waypoints = [start, [-37.815, 144.958], [-37.812, 144.952], [-37.805, 144.957], end]
+
+      return waypoints
+    }
+
+    const drawRoute = (coordinates) => {
+      if (currentRoute.value) {
+        map.value.removeLayer(currentRoute.value)
+      }
+
+      const routeStyle = {
+        driving: { color: '#3388ff', weight: 5 },
+        walking: { color: '#28a745', weight: 4 },
+        transit: { color: '#ffc107', weight: 5 },
+        cycling: { color: '#dc3545', weight: 4 },
+      }
+
+      currentRoute.value = L.polyline(coordinates, {
+        ...routeStyle[travelMode.value],
+        opacity: 0.8,
+      }).addTo(map.value)
+
+      // Add route markers
+      L.marker(coordinates[0], {
+        icon: L.divIcon({
+          html: '<i class="fas fa-play-circle" style="color: #28a745; font-size: 20px;"></i>',
+          iconSize: [20, 20],
+          className: 'route-marker',
+        }),
+      })
+        .addTo(map.value)
+        .bindPopup('Start')
+
+      L.marker(coordinates[coordinates.length - 1], {
+        icon: L.divIcon({
+          html: '<i class="fas fa-flag-checkered" style="color: #dc3545; font-size: 20px;"></i>',
+          iconSize: [20, 20],
+          className: 'route-marker',
+        }),
+      })
+        .addTo(map.value)
+        .bindPopup('Destination')
     }
 
     const calculateDistance = (lat1, lng1, lat2, lng2) => {
@@ -466,6 +753,198 @@ export default {
       })
     }
 
+    // New navigation features
+    const getTravelModeIcon = (mode) => {
+      const icons = {
+        driving: '🚗',
+        walking: '🚶',
+        transit: '🚌',
+        cycling: '🚴',
+      }
+      return icons[mode] || '🚗'
+    }
+
+    const addStop = () => {
+      tripStops.value.push({ location: '', coords: null })
+    }
+
+    const removeStop = (index) => {
+      tripStops.value.splice(index, 1)
+    }
+
+    const planTrip = async () => {
+      if (tripStops.value.length < 2) {
+        alert('Please add at least 2 stops for trip planning')
+        return
+      }
+
+      // Clear existing route
+      if (currentRoute.value) {
+        map.value.removeLayer(currentRoute.value)
+      }
+
+      // Calculate multi-stop route
+      const tripRoute = await calculateMultiStopRoute()
+
+      routeInfo.value = {
+        distance: tripRoute.totalDistance,
+        duration: tripRoute.totalDuration,
+        cost: tripRoute.totalCost,
+        stops: tripStops.value.length,
+      }
+
+      // Draw trip route
+      drawTripRoute(tripRoute.coordinates)
+    }
+
+    const calculateMultiStopRoute = async () => {
+      await new Promise((resolve) => setTimeout(resolve, 1500))
+
+      const totalDistance = (tripStops.value.length * 3.2 + Math.random() * 5).toFixed(1)
+      const totalDuration = Math.round(tripStops.value.length * 15 + Math.random() * 20)
+
+      return {
+        totalDistance: `${totalDistance} km`,
+        totalDuration: `${totalDuration} min`,
+        totalCost:
+          travelMode.value === 'driving'
+            ? `$${(parseFloat(totalDistance) * 0.8).toFixed(2)}`
+            : 'Free',
+        coordinates: generateTripCoordinates(),
+      }
+    }
+
+    const generateTripCoordinates = () => {
+      const baseCoords = [-37.8136, 144.9631]
+      const coords = [baseCoords]
+
+      tripStops.value.forEach((_, index) => {
+        coords.push([
+          baseCoords[0] + (Math.random() - 0.5) * 0.02,
+          baseCoords[1] + (Math.random() - 0.5) * 0.02,
+        ])
+      })
+
+      return coords
+    }
+
+    const drawTripRoute = (coordinates) => {
+      currentRoute.value = L.polyline(coordinates, {
+        color: '#e74c3c',
+        weight: 6,
+        opacity: 0.8,
+        dashArray: '10, 5',
+      }).addTo(map.value)
+
+      // Add stop markers
+      coordinates.forEach((coord, index) => {
+        const isStart = index === 0
+        const isEnd = index === coordinates.length - 1
+        const stopNumber = index + 1
+
+        let icon, popup
+        if (isStart) {
+          icon = '<i class="fas fa-play-circle" style="color: #28a745; font-size: 24px;"></i>'
+          popup = 'Trip Start'
+        } else if (isEnd) {
+          icon = '<i class="fas fa-flag-checkered" style="color: #dc3545; font-size: 24px;"></i>'
+          popup = 'Trip End'
+        } else {
+          icon = `<div class="stop-marker">${stopNumber - 1}</div>`
+          popup = `Stop ${stopNumber - 1}`
+        }
+
+        L.marker(coord, {
+          icon: L.divIcon({
+            html: icon,
+            iconSize: [24, 24],
+            className: 'trip-marker',
+          }),
+        })
+          .addTo(map.value)
+          .bindPopup(popup)
+      })
+
+      map.value.fitBounds(coordinates)
+    }
+
+    const useCurrentLocation = (field) => {
+      if (!userLocation.value) {
+        getCurrentLocation()
+        return
+      }
+
+      const coords = `${userLocation.value.lat},${userLocation.value.lng}`
+      if (field === 'from') {
+        directionsFrom.value = coords
+      } else {
+        directionsTo.value = coords
+      }
+    }
+
+    const searchNearby = () => {
+      if (!userLocation.value) {
+        alert('Please enable location services first')
+        return
+      }
+
+      const radius = parseFloat(searchRadius.value) || 5
+      const nearby = healthcareLocations.filter((location) => {
+        const distance = calculateDistance(
+          userLocation.value.lat,
+          userLocation.value.lng,
+          location.lat,
+          location.lng
+        )
+        return parseFloat(distance) <= radius
+      })
+
+      searchResults.value = nearby.map((location) => ({
+        ...location,
+        distance: calculateDistance(
+          userLocation.value.lat,
+          userLocation.value.lng,
+          location.lat,
+          location.lng
+        ),
+      }))
+
+      sortResults()
+      highlightSearchResults(nearby)
+    }
+
+    const sortResults = () => {
+      if (searchResults.value.length === 0) return
+
+      searchResults.value.sort((a, b) => {
+        switch (sortBy.value) {
+          case 'distance':
+            return parseFloat(a.distance) - parseFloat(b.distance)
+          case 'rating':
+            // Simulate ratings
+            const ratingA = 4 + Math.random()
+            const ratingB = 4 + Math.random()
+            return ratingB - ratingA
+          case 'name':
+            return a.name.localeCompare(b.name)
+          case 'availability':
+            // Simulate availability
+            return Math.random() - 0.5
+          default:
+            return 0
+        }
+      })
+    }
+
+    const toggleMapStyle = () => {
+      const styles = ['default', 'satellite', 'terrain']
+      const currentIndex = styles.indexOf(mapStyle.value)
+      mapStyle.value = styles[(currentIndex + 1) % styles.length]
+
+      // In a real implementation, you would switch tile layers
+      console.log(`Switched to ${mapStyle.value} style`)
+    }
+
     // Global functions for popup buttons
     window.getDirectionsTo = (coords) => {
       directionsTo.value = coords
@@ -490,11 +969,25 @@ export default {
       searchResults,
       routeInfo,
       markerTypes,
+      travelMode,
+      tripStops,
+      showTurnByTurn,
+      searchRadius,
+      sortBy,
+      showTrafficLayer,
       searchPlaces,
       filterMarkers,
       selectLocation,
       getCurrentLocation,
       calculateRoute,
+      getTravelModeIcon,
+      addStop,
+      removeStop,
+      planTrip,
+      useCurrentLocation,
+      searchNearby,
+      sortResults,
+      toggleMapStyle,
     }
   },
 }
@@ -605,9 +1098,94 @@ export default {
   }
 }
 
-@media (min-width: 1200px) {
-  .map-display {
-    height: 75vh;
-  }
+:deep(.trip-marker) {
+  background: none !important;
+  border: none !important;
+}
+
+:deep(.route-marker) {
+  background: none !important;
+  border: none !important;
+}
+
+.stop-marker {
+  background: #007bff;
+  color: white;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 12px;
+  border: 2px solid white;
+}
+
+.trip-stops {
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.trip-stop {
+  transition: all 0.3s ease;
+}
+
+.trip-stop:hover {
+  background-color: #f8f9fa;
+  border-radius: 4px;
+  padding: 4px;
+}
+
+.route-info {
+  border: 1px solid #dee2e6;
+  transition: all 0.3s ease;
+}
+
+.route-info:hover {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.directions-list {
+  border: 1px solid #e9ecef;
+  border-radius: 4px;
+}
+
+.direction-step {
+  transition: background-color 0.2s ease;
+}
+
+.direction-step:hover {
+  background-color: #f8f9fa;
+}
+
+.step-number {
+  min-width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.step-instruction {
+  font-weight: 500;
+  color: #495057;
+}
+
+.legend-item {
+  transition: transform 0.2s ease;
+}
+
+.legend-item:hover {
+  transform: translateY(-1px);
+}
+
+.btn {
+  transition: all 0.2s ease;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 </style>

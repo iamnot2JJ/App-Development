@@ -325,6 +325,36 @@
                 ></textarea>
               </div>
               <div class="mb-3">
+                <label class="form-label">Attachment (Optional)</label>
+                <input
+                  type="file"
+                  class="form-control"
+                  ref="attachmentInput"
+                  @change="handleAttachmentUpload"
+                  accept=".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png,.gif"
+                />
+                <small class="form-text text-muted">
+                  Supported formats: PDF, DOC, DOCX, TXT, JPG, PNG, GIF (Max 5MB)
+                </small>
+                <div v-if="bulkEmailForm.attachment" class="mt-2">
+                  <div class="alert alert-info d-flex justify-content-between align-items-center">
+                    <span>
+                      <i class="fas fa-paperclip"></i>
+                      {{ bulkEmailForm.attachment.name }} ({{
+                        formatFileSize(bulkEmailForm.attachment.size)
+                      }})
+                    </span>
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-outline-danger"
+                      @click="removeAttachment"
+                    >
+                      <i class="fas fa-times"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <div class="mb-3">
                 <div class="form-check">
                   <input
                     class="form-check-input"
@@ -391,6 +421,7 @@ export default {
       subject: '',
       message: '',
       includeUnsubscribe: true,
+      attachment: null,
     })
 
     const dashboardData = computed(() => {
@@ -732,6 +763,7 @@ export default {
           subject: bulkEmailForm.value.subject,
           message: bulkEmailForm.value.message,
           fromName: 'Migrant Health Charity Admin',
+          attachment: bulkEmailForm.value.attachment,
         }
 
         await emailStore.sendBulkEmail(recipients, emailData)
@@ -748,6 +780,7 @@ export default {
           subject: '',
           message: '',
           includeUnsubscribe: true,
+          attachment: null,
         }
       } catch (error) {
         console.error('Bulk email error:', error)
@@ -790,6 +823,56 @@ export default {
         console.log('Delete user:', user)
         // Implement user deletion functionality
       }
+    }
+
+    const handleAttachmentUpload = (event) => {
+      const file = event.target.files[0]
+      if (file) {
+        // Check file size (5MB limit)
+        const maxSize = 5 * 1024 * 1024 // 5MB in bytes
+        if (file.size > maxSize) {
+          alert('File size must be less than 5MB')
+          event.target.value = '' // Clear the input
+          return
+        }
+
+        // Check file type
+        const allowedTypes = [
+          'application/pdf',
+          'application/msword',
+          'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+          'text/plain',
+          'image/jpeg',
+          'image/jpg',
+          'image/png',
+          'image/gif',
+        ]
+
+        if (!allowedTypes.includes(file.type)) {
+          alert('File type not supported. Please use PDF, DOC, DOCX, TXT, JPG, PNG, or GIF files.')
+          event.target.value = '' // Clear the input
+          return
+        }
+
+        bulkEmailForm.value.attachment = file
+      }
+    }
+
+    const removeAttachment = () => {
+      bulkEmailForm.value.attachment = null
+      // Clear the file input
+      const attachmentInput = document.querySelector('input[type="file"]')
+      if (attachmentInput) {
+        attachmentInput.value = ''
+      }
+    }
+
+    const formatFileSize = (bytes) => {
+      if (bytes === 0) return '0 Bytes'
+      const k = 1024
+      const sizes = ['Bytes', 'KB', 'MB', 'GB']
+      const i = Math.floor(Math.log(bytes) / Math.log(k))
+      return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
     }
 
     const dismissAlert = (alertId) => {
@@ -846,6 +929,9 @@ export default {
       updateCharts,
       formatDateTime,
       getStatusColor,
+      handleAttachmentUpload,
+      removeAttachment,
+      formatFileSize,
     }
   },
 }

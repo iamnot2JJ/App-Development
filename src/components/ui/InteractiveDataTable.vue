@@ -4,20 +4,38 @@
       <div class="row">
         <div class="col-md-6">
           <div class="input-group">
+            <label for="global-search" class="visually-hidden">Search all columns</label>
             <input
               type="text"
               class="form-control"
+              id="global-search"
               placeholder="Search all columns..."
               v-model="globalSearch"
               @input="performSearch"
+              aria-describedby="search-help"
             />
-            <button class="btn btn-outline-secondary" type="button">
-              <i class="fas fa-search"></i>
+            <button
+              class="btn btn-outline-secondary"
+              type="button"
+              aria-label="Search"
+              title="Search data"
+            >
+              <i class="fas fa-search" aria-hidden="true"></i>
             </button>
+            <div id="search-help" class="visually-hidden">
+              Search across all table columns and data
+            </div>
           </div>
         </div>
         <div class="col-md-3">
-          <select class="form-select" v-model="pageSize" @change="updatePageSize">
+          <label for="page-size" class="visually-hidden">Items per page</label>
+          <select
+            class="form-select"
+            id="page-size"
+            v-model="pageSize"
+            @change="updatePageSize"
+            aria-label="Select number of items per page"
+          >
             <option value="5">5 per page</option>
             <option value="10">10 per page</option>
             <option value="25">25 per page</option>
@@ -25,27 +43,73 @@
           </select>
         </div>
         <div class="col-md-3">
-          <button class="btn btn-success w-100" @click="exportData">
-            <i class="fas fa-download"></i> Export CSV
+          <button
+            class="btn btn-success w-100"
+            @click="exportData"
+            aria-label="Export table data as CSV file"
+            title="Export data to CSV"
+          >
+            <i class="fas fa-download" aria-hidden="true"></i> Export CSV
           </button>
         </div>
       </div>
     </div>
 
     <div class="table-responsive">
-      <table class="table table-striped table-hover">
+      <table
+        class="table table-striped table-hover"
+        role="table"
+        :aria-label="`Data table with ${filteredData.length} rows`"
+        aria-describedby="table-summary"
+      >
+        <caption class="visually-hidden" id="table-summary">
+          Interactive data table showing
+          {{
+            title || 'records'
+          }}. Use arrow keys to navigate between cells, or Tab to move between interactive elements.
+          Currently showing
+          {{
+            paginatedData.length
+          }}
+          of
+          {{
+            filteredData.length
+          }}
+          total records.
+        </caption>
         <thead class="table-dark">
-          <tr>
+          <tr role="row">
             <th
               v-for="column in columns"
               :key="column.key"
               @click="sortBy(column.key)"
               :class="{ sortable: column.sortable !== false }"
+              role="columnheader"
+              :aria-sort="getSortState(column.key)"
+              :tabindex="column.sortable !== false ? 0 : -1"
+              @keydown="handleHeaderKeydown($event, column.key)"
+              :aria-label="`${column.label}${column.sortable !== false ? ', sortable column' : ''}`"
             >
               {{ column.label }}
-              <i v-if="column.sortable !== false" :class="getSortIcon(column.key)" class="ms-2"></i>
+              <i
+                v-if="column.sortable !== false"
+                :class="getSortIcon(column.key)"
+                class="ms-2"
+                aria-hidden="true"
+              ></i>
             </th>
-            <th v-if="actions.length > 0">Actions</th>
+            <th v-if="actions.length > 0" role="columnheader">
+              Actions
+              <button
+                class="btn btn-sm btn-outline-light ms-2"
+                @click="showColumnSearch = !showColumnSearch"
+                :aria-label="showColumnSearch ? 'Hide column search' : 'Show column search'"
+                :aria-expanded="showColumnSearch"
+                title="Toggle column search"
+              >
+                <i class="fas fa-search" aria-hidden="true"></i>
+              </button>
+            </th>
           </tr>
           <tr v-if="showColumnSearch">
             <th v-for="column in columns" :key="`search-${column.key}`">
@@ -372,6 +436,19 @@ export default {
       document.body.removeChild(link)
     }
 
+    // Accessibility methods
+    const getSortState = (columnKey) => {
+      if (sortColumn.value !== columnKey) return 'none'
+      return sortDirection.value === 'asc' ? 'ascending' : 'descending'
+    }
+
+    const handleHeaderKeydown = (event, columnKey) => {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault()
+        sortBy(columnKey)
+      }
+    }
+
     // Reset page when data changes
     watch(
       () => props.data,
@@ -403,6 +480,8 @@ export default {
       formatDate,
       getBadgeColor,
       exportData,
+      getSortState,
+      handleHeaderKeydown,
     }
   },
 }
@@ -434,6 +513,54 @@ export default {
 .btn-group-sm > .btn {
   padding: 0.25rem 0.5rem;
   font-size: 0.775rem;
+}
+
+/* Accessibility improvements */
+.sortable:focus {
+  outline: 2px solid #0d6efd;
+  outline-offset: 2px;
+}
+
+.visually-hidden {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .table-striped > tbody > tr:nth-of-type(odd) > td {
+    background-color: #f8f9fa;
+  }
+
+  .sortable {
+    border: 1px solid #000;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .sortable {
+    transition: none;
+  }
+
+  .btn {
+    transition: none;
+  }
+}
+
+/* Focus management */
+.table th:focus,
+.table td:focus {
+  outline: 2px solid #0d6efd;
+  outline-offset: -2px;
+  background-color: rgba(13, 110, 253, 0.1);
 }
 
 @media (max-width: 768px) {

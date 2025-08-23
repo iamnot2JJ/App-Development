@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import axios from 'axios'
+import { getFunctions, httpsCallable } from 'firebase/functions'
 
 export const useEmailStore = defineStore('email', {
   state: () => ({
@@ -14,27 +14,36 @@ export const useEmailStore = defineStore('email', {
         this.loading = true
         this.error = null
 
-        // Using EmailJS for client-side email sending
-        // You'll need to set up EmailJS account and get your service ID, template ID, and public key
-        const templateParams = {
-          to_email: emailData.to,
-          from_name: emailData.fromName || 'Migrant Health Charity',
-          subject: emailData.subject,
-          message: emailData.message,
-          reply_to: emailData.replyTo || 'noreply@migranthelp.org',
-          attachment_url: emailData.attachmentUrl || '',
-          attachment_name: emailData.attachmentName || '',
-        }
+        let response
+        if (emailData.attachment) {
+          // Send email with attachment using Cloud Function
+          response = await this.sendEmailWithAttachment(emailData)
+        } else {
+          // Send regular email using existing bulk email function
+          const functions = getFunctions()
+          const sendBulkEmailFunction = httpsCallable(functions, 'sendBulkEmail')
 
-        // This would typically use EmailJS or a backend service
-        // For demo purposes, we'll simulate the email sending
-        const response = await this.simulateEmailSending(templateParams)
+          response = await sendBulkEmailFunction({
+            recipients: [
+              {
+                email: emailData.to,
+                firstName: emailData.firstName || '',
+                lastName: emailData.lastName || '',
+              },
+            ],
+            subject: emailData.subject,
+            message: emailData.message,
+            fromName: emailData.fromName || 'Migrant Health Charity',
+          })
+        }
 
         const emailRecord = {
           id: Date.now(),
           ...emailData,
           sentAt: new Date().toISOString(),
           status: 'sent',
+          hasAttachment: !!emailData.attachment,
+          attachmentName: emailData.attachment?.name || null,
         }
 
         this.sentEmails.push(emailRecord)
@@ -49,29 +58,92 @@ export const useEmailStore = defineStore('email', {
       }
     },
 
+    async sendEmailWithAttachment(emailData) {
+      try {
+        const functions = getFunctions()
+        const sendEmailWithAttachmentFunction = httpsCallable(functions, 'sendEmailWithAttachment')
+
+        // Convert file to base64
+        const attachmentData = await this.fileToBase64(emailData.attachment)
+
+        const response = await sendEmailWithAttachmentFunction({
+          to: emailData.to,
+          subject: emailData.subject,
+          message: emailData.message,
+          fromName: emailData.fromName || 'Migrant Health Charity',
+          attachment: {
+            filename: emailData.attachment.name,
+            content: attachmentData.content,
+            contentType: emailData.attachment.type,
+          },
+        })
+
+        return response
+      } catch (error) {
+        console.error('Error sending email with attachment:', error)
+        throw error
+      }
+    },
+
     async sendBulkEmail(recipients, emailData) {
       try {
         this.loading = true
         this.error = null
 
-        const results = []
+        if (emailData.attachment) {
+          // For bulk emails with attachments, send individually
+          const results = []
+          for (const recipient of recipients) {
+            try {
+              const personalizedEmail = {
+                ...emailData,
+                to: recipient.email,
+                firstName: recipient.firstName,
+                lastName: recipient.lastName,
+                message: this.personalizeMessage(emailData.message, recipient),
+              }
 
-        for (const recipient of recipients) {
-          try {
-            const personalizedEmail = {
-              ...emailData,
-              to: recipient.email,
-              message: this.personalizeMessage(emailData.message, recipient),
+              await this.sendEmailWithAttachment(personalizedEmail)
+              results.push({ email: recipient.email, status: 'sent' })
+            } catch (error) {
+              results.push({ email: recipient.email, status: 'failed', error: error.message })
             }
-
-            await this.sendEmail(personalizedEmail)
-            results.push({ email: recipient.email, status: 'sent' })
-          } catch (error) {
-            results.push({ email: recipient.email, status: 'failed', error: error.message })
           }
-        }
+          return results
+        } else {
+          // Use Cloud Function for bulk emails without attachments
+          const functions = getFunctions()
+          const sendBulkEmailFunction = httpsCallable(functions, 'sendBulkEmail')
 
-        return results
+          const response = await sendBulkEmailFunction({
+            recipients: recipients.map((r) => ({
+              email: r.email,
+              firstName: r.firstName || '',
+              lastName: r.lastName || '',
+            })),
+            subject: emailData.subject,
+            message: emailData.message,
+            fromName: emailData.fromName || 'Migrant Health Charity',
+          })
+
+          // Record all sent emails
+          recipients.forEach((recipient) => {
+            const emailRecord = {
+              id: Date.now() + Math.random(),
+              to: recipient.email,
+              subject: emailData.subject,
+              message: this.personalizeMessage(emailData.message, recipient),
+              fromName: emailData.fromName,
+              sentAt: new Date().toISOString(),
+              status: 'sent',
+              hasAttachment: false,
+            }
+            this.sentEmails.push(emailRecord)
+          })
+
+          localStorage.setItem('sentEmails', JSON.stringify(this.sentEmails))
+          return response
+        }
       } catch (error) {
         this.error = error.message
         throw error
@@ -80,27 +152,26 @@ export const useEmailStore = defineStore('email', {
       }
     },
 
+    async fileToBase64(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader()
+        reader.readAsDataURL(file)
+        reader.onload = () => {
+          const base64String = reader.result.split(',')[1] // Remove data:type;base64, prefix
+          resolve({
+            content: base64String,
+            size: file.size,
+          })
+        }
+        reader.onerror = (error) => reject(error)
+      })
+    },
+
     personalizeMessage(template, recipient) {
       return template
         .replace('{{firstName}}', recipient.firstName || '')
         .replace('{{lastName}}', recipient.lastName || '')
         .replace('{{fullName}}', `${recipient.firstName || ''} ${recipient.lastName || ''}`.trim())
-    },
-
-    async simulateEmailSending(emailData) {
-      // Simulate API delay
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-
-      // Simulate occasional failures for testing
-      if (Math.random() < 0.1) {
-        throw new Error('Email delivery failed')
-      }
-
-      return {
-        success: true,
-        messageId: `msg_${Date.now()}`,
-        timestamp: new Date().toISOString(),
-      }
     },
 
     initializeStore() {
